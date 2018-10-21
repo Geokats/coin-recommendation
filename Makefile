@@ -1,13 +1,13 @@
-OBJ = lsh.o Point.o
+OBJ = lsh.o point.o
 
 all: lsh
 	rm $(OBJ)
 
-lsh: lsh.o Point.o
-	g++ lsh.o Point.o -o lsh
+lsh: lsh.o point.o
+	g++ lsh.o point.o -o lsh
 
 lsh.o: lsh.cpp
 	g++ -c lsh.cpp
 
-Point.o: Point.cpp Point.hpp
-	g++ -c Point.cpp
+point.o: point.cpp point.hpp
+	g++ -c point.cpp

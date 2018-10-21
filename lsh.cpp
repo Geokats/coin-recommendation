@@ -7,11 +7,11 @@
 #include <unistd.h> //getopt
 #include <stdlib.h> //atoi
 
-#include "Point.hpp"
+#include "point.hpp"
 
 using namespace std;
 
-int getPoints(fstream &fs, vector<Point> &points){
+int getPoints(fstream &fs, vector<point> &points){
   int dim;
   int i = 0;
   string line;
@@ -20,7 +20,7 @@ int getPoints(fstream &fs, vector<Point> &points){
   getline(fs, line);
   while(!fs.eof()){
     //Create a point from the line read
-    Point p(line);
+    point p(line);
     //Check for consistency of dimensions
     if(i == 0){
       dim = p.dim();
@@ -90,7 +90,7 @@ int main(int argc, char* const *argv) {
 
   //Read and store dataset
   fstream inputFile(inputFileName, ios_base::in);
-  vector<Point> points;
+  vector<point> points;
   if(getPoints(inputFile, points) == -1){
     cerr << "Error: Not all vectors are of the same dimension\n";
     return 1;
@@ -99,7 +99,7 @@ int main(int argc, char* const *argv) {
 
   //Read and store query points
   fstream queryFile(queryFileName, ios_base::in);
-  vector<Point> queries;
+  vector<point> queries;
   if(getPoints(queryFile, queries) == -1){
     cerr << "Error: Not all vectors are of the same dimension\n";
     return 1;
@@ -109,16 +109,16 @@ int main(int argc, char* const *argv) {
   //Open output file
   fstream outputFile(outputFileName, ios_base::out);
 
-  for(vector<Point>::iterator q = queries.begin(); q != queries.end(); q++){
+  for(vector<point>::iterator q = queries.begin(); q != queries.end(); q++){
     outputFile << "Query: " << q->getName() << "\n";
 
     //Find True Nearest Neighbor
     double minDist = q->distance(points[0]);
-    Point nn = *q;
+    point nn = *q;
     //Get start time
     clock_t start = clock();
 
-    for(vector<Point>::iterator p = points.begin(); p != points.end(); p++){
+    for(vector<point>::iterator p = points.begin(); p != points.end(); p++){
       double dist = q->distance(*p);
       if(dist < minDist){
         minDist = dist;

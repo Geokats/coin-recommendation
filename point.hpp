@@ -3,19 +3,19 @@
 #include <vector>
 #include <string>
 
-class Point{
+class point{
 private:
   std::string name;
   std::vector<int> vals;
 
 public:
-  Point(std::string line);
-  // virtual ~Point();
+  point(std::string line);
+  // virtual ~point();
 
   void print();
   int dim();
   std::string getName();
-  double distance(Point p);
+  double distance(point p);
 };
 
 #define POINT

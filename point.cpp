@@ -1,4 +1,4 @@
-#include "Point.hpp"
+#include "point.hpp"
 
 #include <vector>
 #include <string>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Point::Point(std::string line){
+point::point(std::string line){
   int i = 0;
   for(int j = 0; j < line.length(); j++){
     if(line[j] == '\t'){
@@ -26,7 +26,7 @@ Point::Point(std::string line){
   }
 }
 
-void Point::print(){
+void point::print(){
   cout << name << ": ";
   for(vector<int>::iterator it = vals.begin(); it != vals.end(); it++){
     cout << *it << ' ';
@@ -34,15 +34,15 @@ void Point::print(){
   cout << '\n';
 }
 
-int Point::dim(){
+int point::dim(){
   return vals.size();
 }
 
-string Point::getName(){
+string point::getName(){
   return name;
 }
 
-double Point::distance(Point p){
+double point::distance(point p){
   if(this->vals.size() != p.vals.size()){
     return -1.0;
   }
