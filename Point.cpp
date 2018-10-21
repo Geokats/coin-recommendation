@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <stdlib.h> //atoi
+#include <cmath>
 
 using namespace std;
 
@@ -35,4 +36,27 @@ void Point::print(){
 
 int Point::dim(){
   return vals.size();
+}
+
+string Point::getName(){
+  return name;
+}
+
+double Point::distance(Point p){
+  if(this->vals.size() != p.vals.size()){
+    return -1.0;
+  }
+  double dist = 0.0;
+  vector<int>::iterator it1 = this->vals.begin();
+  vector<int>::iterator it2 = p.vals.begin();
+
+  for(int i = 0; i < this->vals.size(); i++){
+    dist += pow(*it1 - *it2, 2);
+
+    it1++;
+    it2++;
+  }
+
+  dist = sqrt(dist);
+  return dist;
 }

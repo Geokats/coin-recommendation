@@ -3,12 +3,42 @@
 #include <vector>
 #include <string>
 
+#include <time.h>
 #include <unistd.h> //getopt
 #include <stdlib.h> //atoi
 
 #include "Point.hpp"
 
 using namespace std;
+
+int getPoints(fstream &fs, vector<Point> &points){
+  int dim;
+  int i = 0;
+  string line;
+
+  //Read a line from input file
+  getline(fs, line);
+  while(!fs.eof()){
+    //Create a point from the line read
+    Point p(line);
+    //Check for consistency of dimensions
+    if(i == 0){
+      dim = p.dim();
+    }
+    else{
+      if(dim != p.dim()){
+        return -1;
+      }
+    }
+    i++;
+
+    //Store new point
+    points.push_back(p);
+    //Read next line
+    getline(fs, line);
+  }
+  return dim;
+}
 
 int main(int argc, char* const *argv) {
   //Command line arguments
@@ -58,47 +88,55 @@ int main(int argc, char* const *argv) {
     return 1;
   }
 
-  //Check files given
+  //Read and store dataset
   fstream inputFile(inputFileName, ios_base::in);
-  //TODO: Check query and output files as well
-
-  //Read and store input dataset
   vector<Point> points;
-  int dim;
-  int i = 0;
-
-  //Read a line from input file
-  string line;
-  getline(inputFile, line);
-  while(!inputFile.eof()){
-    //Create a point from the line read
-    Point p(line);
-
-    //Check for consistency of dimensions
-    if(i == 0){
-      dim = p.dim();
-    }
-    else{
-      if(dim != p.dim()){
-        cout << "Error: Not all vectors are of the same dimension\n";
-        return 1;
-      }
-    }
-    i++;
-
-    //Store new point
-    points.push_back(p);
-
-    //Read next line
-    getline(inputFile, line);
+  if(getPoints(inputFile, points) == -1){
+    cerr << "Error: Not all vectors are of the same dimension\n";
+    return 1;
   }
-
   inputFile.close();
 
-  //Print points
-  for(vector<Point>::iterator it = points.begin(); it != points.end(); it++){
-    it->print();
+  //Read and store query points
+  fstream queryFile(queryFileName, ios_base::in);
+  vector<Point> queries;
+  if(getPoints(queryFile, queries) == -1){
+    cerr << "Error: Not all vectors are of the same dimension\n";
+    return 1;
+  }
+  queryFile.close();
+
+  //Open output file
+  fstream outputFile(outputFileName, ios_base::out);
+
+  for(vector<Point>::iterator q = queries.begin(); q != queries.end(); q++){
+    outputFile << "Query: " << q->getName() << "\n";
+
+    //Find True Nearest Neighbor
+    double minDist = q->distance(points[0]);
+    Point nn = *q;
+    //Get start time
+    clock_t start = clock();
+
+    for(vector<Point>::iterator p = points.begin(); p != points.end(); p++){
+      double dist = q->distance(*p);
+      if(dist < minDist){
+        minDist = dist;
+        nn = *p;
+      }
+    }
+
+    //Get end time
+    clock_t end = clock();
+    //Get duration
+    double tTrue = (double) (end - start)/CLOCKS_PER_SEC;
+
+    outputFile << "Nearest neighbor: " << nn.getName() << "\n";
+    outputFile << "distanceTrue: " << minDist << "\n";
+    outputFile << "tTrue: " << tTrue << "\n";
+    outputFile << "\n";
   }
 
+  outputFile.close();
   return 0;
 }
