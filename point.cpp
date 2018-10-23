@@ -11,12 +11,12 @@ using namespace std;
 
 point::point(string name, int dim, int min, int max){
   //Initialise random real number generator
-  uniform_real_distribution<double> unif(min, max);
+  normal_distribution<double> norm(min, max);
   default_random_engine re;
 
   this->name = name;
   for(int i = 0; i < dim; i++){
-    vals.push_back(unif(re));
+    vals.push_back(norm(re));
   }
 }
 
