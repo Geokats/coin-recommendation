@@ -6,11 +6,11 @@
 class point{
 private:
   std::string name;
-  std::vector<int> vals;
+  std::vector<double> vals;
 
 public:
+  point(std::string name, int dim, int min, int max);
   point(std::string line);
-  // virtual ~point();
 
   void print();
   int dim();
