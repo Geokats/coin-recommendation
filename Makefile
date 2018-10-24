@@ -5,7 +5,6 @@ OBJ = lsh.o point.o hash_table.o
 
 
 all: lsh
-	rm $(OBJ)
 
 lsh: lsh.o point.o hash_table.o
 	$(CC) $(FLG) lsh.o point.o hash_table.o -o lsh
@@ -21,3 +20,6 @@ hash_table.o: hash_table.cpp hash_table.hpp
 
 wc:
 	wc $(SRC)
+
+clean:
+	rm $(OBJ) lsh

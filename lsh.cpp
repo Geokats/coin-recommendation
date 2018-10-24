@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <unordered_set>
 #include <string>
 
 #include <time.h>
@@ -27,6 +28,7 @@ class lsh{
     ~lsh();
 
     point *nn(point q, double &minDist);
+    unordered_set<point*> rnn(point q, double r);
 };
 
 lsh::lsh(int k, int L, int dim, string metric, vector<point> *points){
@@ -72,6 +74,26 @@ point *lsh::nn(point q, double &minDist){
 
   return nn;
 }
+
+unordered_set<point*> lsh::rnn(point q, double r){
+  unordered_set<point*> rnns;
+
+  for(int i = 0; i < L; i++){
+    for(int j = 0; j < k; j++){
+      std::vector<point*> *bucket = tables[i]->getBucket(q);
+
+      for(int k = 0; k < bucket->size(); k++){
+        double dist = q.distance(*(bucket->at(k)));
+        if(dist < r){
+          rnns.insert(bucket->at(k));
+        }
+      }
+    }
+  }
+  return rnns;
+}
+
+
 
 point *get_true_nn(point q, double &minDist, vector<point> *points){
   minDist = q.distance(points->at(0));
@@ -195,6 +217,14 @@ int main(int argc, char* const *argv) {
 
   for(vector<point>::iterator q = queries.begin(); q != queries.end(); q++){
     outputFile << "Query: " << q->getName() << "\n";
+
+    //Find Nearest Neighbors in radius from LSH
+    unordered_set<point*> lsh_rnns = searcher.rnn(*q, 300.0);
+    //Print results to output file
+    outputFile << "R-near neighbors:\n";
+    for(unordered_set<point*>::iterator i = lsh_rnns.begin(); i != lsh_rnns.end(); i++){
+      outputFile << (*i)->getName() << "\n";
+    }
 
     //Find Nearest Neighbor from LSH
     double lsh_minDist;
