@@ -214,6 +214,11 @@ int main(int argc, char* const *argv) {
   lsh searcher(k, L, dim, "euclidean", &points);
   //Timer variables
   clock_t start, end;
+  //Statistic variables
+  double maxAprox = 0;
+  double avrgAprox = 0;
+  double avrgLSHt = 0;
+  double avrgTruet = 0;
 
   for(vector<point>::iterator q = queries.begin(); q != queries.end(); q++){
     outputFile << "Query: " << q->getName() << "\n";
@@ -255,7 +260,24 @@ int main(int argc, char* const *argv) {
     outputFile << "tTrue: " << tTrue << "\n";
 
     outputFile << "\n";
+
+    //Keep statistics
+    if(lsh_minDist/true_minDist > maxAprox){
+      maxAprox = lsh_minDist/true_minDist;
+    }
+    avrgAprox += lsh_minDist/true_minDist;
+    avrgLSHt += tLSH;
+    avrgTruet += tTrue;
   }
+
+  //Print statistics
+  avrgLSHt = avrgLSHt / (double) queries.size();
+  avrgTruet = avrgTruet / (double) queries.size();
+  avrgAprox = avrgAprox / (double) queries.size();
+  outputFile << "Max approximation ratio = " << maxAprox << "\n";
+  outputFile << "Average approximation ratio = " << avrgAprox << "\n";
+  outputFile << "Average LSH NN time = " << avrgLSHt << "\n";
+  outputFile << "Average True NN time = " << avrgTruet << "\n";
 
   outputFile.close();
   return 0;

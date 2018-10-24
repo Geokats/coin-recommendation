@@ -21,6 +21,8 @@ class eucl_hash : public hasher{
     std::vector<double> t;
     const static unsigned int w = 4;
 
+    std::vector<int> r;
+
   public:
     eucl_hash(int tableSize, int k, int dim);
 
@@ -30,7 +32,7 @@ class eucl_hash : public hasher{
 class hash_table{
   private:
     int tableSize;
-    std::vector<std::vector<point*>> buckets;
+    std::vector<std::vector<point*>*> buckets;
     hasher *hashFunc;
 
   public:
