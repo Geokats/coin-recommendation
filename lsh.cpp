@@ -8,8 +8,85 @@
 #include <stdlib.h> //atoi
 
 #include "point.hpp"
+#include "hash_table.hpp"
 
 using namespace std;
+
+class lsh{
+  private:
+    int k;
+    int L;
+    int dim;
+    string metric;
+
+    vector<point> *points;
+    vector<hash_table*> tables;
+
+  public:
+    lsh(int k, int L, int dim, string metric, vector<point> *points);
+    ~lsh();
+
+    point *nn(point q, double &minDist);
+};
+
+lsh::lsh(int k, int L, int dim, string metric, vector<point> *points){
+  this->k = k;
+  this->L = L;
+  this->dim = dim;
+  this->metric = metric;
+  this->points = points;
+
+  //Construct hash tables
+  for(int i = 0; i < L; i++){
+    tables.push_back(new hash_table(k, dim, points, metric));
+  }
+}
+
+lsh::~lsh(){
+  for(int i = 0; i < L; i++){
+    delete tables[i];
+  }
+}
+
+point *lsh::nn(point q, double &minDist){
+  minDist = -1;
+  point *nn;
+
+  for(int i = 0; i < L; i++){
+    for(int j = 0; j < k; j++){
+      std::vector<point*> *bucket = tables[i]->getBucket(q);
+
+      for(int k = 0; k < bucket->size(); k++){
+        double dist = q.distance(*(bucket->at(k)));
+        if(minDist == -1){
+          minDist = dist;
+          nn = bucket->at(k);
+        }
+        else if(dist < minDist){
+          minDist = dist;
+          nn = bucket->at(k);
+        }
+      }
+    }
+  }
+
+  return nn;
+}
+
+point *get_true_nn(point q, double &minDist, vector<point> *points){
+  minDist = q.distance(points->at(0));
+  point *nn = &(points->at(0));
+
+  for(vector<point>::iterator p = points->begin(); p != points->end(); p++){
+    double dist = q.distance(*p);
+    if(dist < minDist){
+      minDist = dist;
+      nn = &(*p);
+    }
+  }
+
+  return nn;
+}
 
 int getPoints(fstream &fs, vector<point> &points){
   int dim;
@@ -77,6 +154,7 @@ int main(int argc, char* const *argv) {
   //Check command line arguments
   if(inputFileName == NULL || queryFileName == NULL || outputFileName == NULL || k == -1 || L == -1){
     cerr << "Usage: ./lsh –d <input file> –q <query file> –k <int> -L <int> -ο <output file>\n";
+    return 1;
   }
 
   if(k <= 0){
@@ -91,7 +169,8 @@ int main(int argc, char* const *argv) {
   //Read and store dataset
   fstream inputFile(inputFileName, ios_base::in);
   vector<point> points;
-  if(getPoints(inputFile, points) == -1){
+  int dim = getPoints(inputFile, points);
+  if(dim == -1){
     cerr << "Error: Not all vectors are of the same dimension\n";
     return 1;
   }
@@ -109,31 +188,42 @@ int main(int argc, char* const *argv) {
   //Open output file
   fstream outputFile(outputFileName, ios_base::out);
 
+  //Initialise LSH
+  lsh searcher(k, L, dim, "euclidean", &points);
+  //Timer variables
+  clock_t start, end;
+
   for(vector<point>::iterator q = queries.begin(); q != queries.end(); q++){
     outputFile << "Query: " << q->getName() << "\n";
 
-    //Find True Nearest Neighbor
-    double minDist = q->distance(points[0]);
-    point nn = *q;
+    //Find Nearest Neighbor from LSH
+    double lsh_minDist;
     //Get start time
-    clock_t start = clock();
-
-    for(vector<point>::iterator p = points.begin(); p != points.end(); p++){
-      double dist = q->distance(*p);
-      if(dist < minDist){
-        minDist = dist;
-        nn = *p;
-      }
-    }
-
+    start = clock();
+    point *lsh_nn = searcher.nn(*q, lsh_minDist);
     //Get end time
-    clock_t end = clock();
+    end = clock();
+    //Get duration
+    double tLSH = (double) (end - start)/CLOCKS_PER_SEC;
+    //Print results to output file
+    outputFile << "LSH Nearest neighbor: " << lsh_nn->getName() << "\n";
+    outputFile << "distanceLSH: " << lsh_minDist << "\n";
+    outputFile << "tLSH: " << tLSH << "\n";
+
+    //Find True Nearest Neighbor
+    double true_minDist;
+    //Get start time
+    start = clock();
+    point *true_nn = get_true_nn(*q, true_minDist, &points);
+    //Get end time
+    end = clock();
     //Get duration
     double tTrue = (double) (end - start)/CLOCKS_PER_SEC;
-
-    outputFile << "Nearest neighbor: " << nn.getName() << "\n";
-    outputFile << "distanceTrue: " << minDist << "\n";
+    //Print results to output file
+    outputFile << "Nearest neighbor: " << true_nn->getName() << "\n";
+    outputFile << "distanceTrue: " << true_minDist << "\n";
     outputFile << "tTrue: " << tTrue << "\n";
+
     outputFile << "\n";
   }
 

@@ -6,13 +6,15 @@
 #include <stdlib.h> //atoi
 #include <cmath>
 #include <random>
+#include <chrono>
 
 using namespace std;
 
 point::point(string name, int dim, int min, int max){
   //Initialise random real number generator
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   normal_distribution<double> norm(min, max);
-  default_random_engine re;
+  default_random_engine re(seed);
 
   this->name = name;
   for(int i = 0; i < dim; i++){
@@ -71,4 +73,19 @@ double point::distance(point p){
 
   dist = sqrt(dist);
   return dist;
+}
+
+double point::product(point p){
+  double prod = 0.0;
+  vector<double>::iterator it1 = this->vals.begin();
+  vector<double>::iterator it2 = p.vals.begin();
+
+  for(int i = 0; i < this->vals.size(); i++){
+    prod += *it1 * *it2;
+
+    it1++;
+    it2++;
+  }
+
+  return prod;
 }

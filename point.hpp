@@ -15,7 +15,9 @@ public:
   void print();
   int dim();
   std::string getName();
+
   double distance(point p);
+  double product(point p);
 };
 
 #define POINT
