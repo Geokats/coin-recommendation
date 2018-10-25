@@ -9,7 +9,7 @@ private:
   std::vector<double> vals;
 
 public:
-  point(std::string name, int dim, int min, int max);
+  point(std::string name, int dim, int mean, int dev);
   point(std::string line);
 
   void print();

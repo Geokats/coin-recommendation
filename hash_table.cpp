@@ -54,7 +54,12 @@ hash_table::hash_table(int k, int dim, vector<point> *points, string metric){
   tableSize = points->size() / 4;
 
   //Create hash functions
-  hashFunc = new eucl_hash(tableSize, k, dim);
+  if(metric == "euclidean"){
+    hashFunc = new eucl_hash(tableSize, k, dim);
+  }
+  else{
+    cerr << "Error: Metric \"" << metric << "\" is not supported\n";
+  }
   //Create table
   for(int i = 0; i < tableSize; i++){
     buckets.push_back(new vector<point*>);

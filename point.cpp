@@ -10,10 +10,10 @@
 
 using namespace std;
 
-point::point(string name, int dim, int min, int max){
+point::point(string name, int dim, int mean, int dev){
   //Initialise random real number generator
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  normal_distribution<double> norm(min, max);
+  normal_distribution<double> norm(mean, dev);
   default_random_engine re(seed);
 
   this->name = name;
@@ -23,6 +23,7 @@ point::point(string name, int dim, int min, int max){
 }
 
 point::point(std::string line){
+  string str;
   int i = 0;
   for(int j = 0; j < line.length(); j++){
     if(line[j] == '\t'){
@@ -30,13 +31,19 @@ point::point(std::string line){
         name = line.substr(i, j - i);
       }
       else{
-        vals.push_back(atof(line.substr(i, j - i).c_str()));
+        str = line.substr(i, j - i);
+        if(str.find_first_not_of(" \t\r\n") != str.npos){
+          vals.push_back(atof(str.c_str()));
+        }
       }
       i = j + 1;
     }
   }
   if(i < line.length()){
-    vals.push_back(atof(line.substr(i).c_str()));
+    str = line.substr(i);
+    if(str.find_first_not_of(" \t\r\n") != str.npos){
+      vals.push_back(atof(str.c_str()));
+    }
   }
 }
 

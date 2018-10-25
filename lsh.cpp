@@ -188,8 +188,15 @@ int main(int argc, char* const *argv) {
     return 1;
   }
 
-  //Read and store dataset
+  //Open input file
   fstream inputFile(inputFileName, ios_base::in);
+  //Get metric
+  string metric;
+  getline(inputFile, metric);
+  metric.erase(0,8);
+  metric.erase(metric.find_first_of(" \t\n\r"), metric.npos);
+  cout << "metric = \"" << metric << "\"\n";
+  //Read and store dataset
   vector<point> points;
   int dim = getPoints(inputFile, points);
   if(dim == -1){
@@ -198,8 +205,15 @@ int main(int argc, char* const *argv) {
   }
   inputFile.close();
 
-  //Read and store query points
+  //Open query file
   fstream queryFile(queryFileName, ios_base::in);
+  //Get radius
+  string line;
+  getline(queryFile, line);
+  line.erase(0,8);
+  double radius = atof(line.c_str());
+  cout << "radius = " << radius << "\n";
+  //Read and store query points
   vector<point> queries;
   if(getPoints(queryFile, queries) == -1){
     cerr << "Error: Not all vectors are of the same dimension\n";
@@ -211,7 +225,7 @@ int main(int argc, char* const *argv) {
   fstream outputFile(outputFileName, ios_base::out);
 
   //Initialise LSH
-  lsh searcher(k, L, dim, "euclidean", &points);
+  lsh searcher(k, L, dim, metric, &points);
   //Timer variables
   clock_t start, end;
   //Statistic variables
@@ -224,7 +238,7 @@ int main(int argc, char* const *argv) {
     outputFile << "Query: " << q->getName() << "\n";
 
     //Find Nearest Neighbors in radius from LSH
-    unordered_set<point*> lsh_rnns = searcher.rnn(*q, 300.0);
+    unordered_set<point*> lsh_rnns = searcher.rnn(*q, radius);
     //Print results to output file
     outputFile << "R-near neighbors:\n";
     for(unordered_set<point*>::iterator i = lsh_rnns.begin(); i != lsh_rnns.end(); i++){
