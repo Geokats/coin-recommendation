@@ -7,6 +7,10 @@
 
 using namespace std;
 
+
+/******************************* Euclidean Hash *******************************/
+
+
 eucl_hash::eucl_hash(int tableSize, int k, int dim){
   this->tableSize = tableSize;
   this->k = k;
@@ -47,6 +51,35 @@ int eucl_hash::hash(point p){
 }
 
 
+/********************************* Cosine Hash ********************************/
+
+
+cos_hash::cos_hash(int tableSize, int k, int dim){
+  this->tableSize = tableSize;
+  this->k = k;
+  this->dim = dim;
+
+  for(int i = 0; i < k; i++){
+    //Generate point following normal distribution with mean = 0, dev = 1
+    r.push_back(new point(string("r") + to_string(i), dim, 0, 1));
+  }
+}
+
+cos_hash::~cos_hash(){
+  for(int i = 0; i < k; i++){
+    delete r[i];
+  }
+}
+
+int cos_hash::hash(point p){
+  int key = 0;
+  for(int i = 0; i < k; i++){
+    key += p.product(*r[i]) >= 0 ? 1<<k : 0;
+  }
+  return key % tableSize;
+}
+
+
 /********************************* Hash Table *********************************/
 
 
@@ -56,6 +89,9 @@ hash_table::hash_table(int k, int dim, vector<point> *points, string metric){
   //Create hash functions
   if(metric == "euclidean"){
     hashFunc = new eucl_hash(tableSize, k, dim);
+  }
+  if(metric == "cosine"){
+    hashFunc = new cos_hash(tableSize, k, dim);
   }
   else{
     cerr << "Error: Metric \"" << metric << "\" is not supported\n";

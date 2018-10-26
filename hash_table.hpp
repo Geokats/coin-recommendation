@@ -29,6 +29,17 @@ class eucl_hash : public hasher{
     int hash(point p);
 };
 
+class cos_hash : public hasher{
+  private:
+    std::vector<point*> r;
+
+  public:
+    cos_hash(int tableSize, int k, int dim);
+    ~cos_hash();
+
+    int hash(point p);
+};
+
 class hash_table{
   private:
     int tableSize;
