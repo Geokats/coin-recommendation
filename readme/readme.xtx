@@ -1,0 +1,277 @@
+\documentclass[12pt]{article}
+
+%%%%% Greek language and fonts %%%%%%
+\usepackage[cm-default]{fontspec}
+\setromanfont{FreeSerif}
+\setsansfont{FreeSans}
+\setmonofont{FreeMono}
+
+\usepackage[a4paper, margin=0.75in]{geometry}
+\usepackage{multicol}
+
+%%%%%%%%%%%%%%%%%%%%%%%% Headers and Footers %%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\fancyheadoffset{10pt}
+
+\lhead{LSH \& Hypercube}
+\chead{}
+\rhead{Γιώργος Κατσογιάννης}
+
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Math packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath, amsfonts, amsthm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Graphs and Diagrams %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{float}
+\usepackage{csvsimple}
+
+% \usepackage{subfig}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Links %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Source code package %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{listings}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=b,
+	keepspaces=true,
+	% numbers=left,
+	numbersep=5pt,
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	tabsize=2
+}
+
+\lstset{style=mystyle}
+
+
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{patterns}
+\begin{document}
+
+\pagenumbering{arabic}
+\thispagestyle{plain}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Title %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{multicols}{2}
+	\begin{flushleft}
+		\small{
+		Εθνικό και Καποδιστριακό Πανεπιστήμιο Αθηνών\\
+		Τμήμα Πληροφορικής \& Τηλεπικοινωνιών\\
+		Ανάπτυξη Λογισμικού για Αλγ. Προβλήματα\\
+		}
+	\end{flushleft}
+
+	\columnbreak
+
+	\begin{flushright}
+		\small{
+		Γιώργος Κατσογιάννης-Μεϊμαράκης\\
+		sdi1400065@di.uoa.gr\\
+		Χειμερινό Εξάμηνο 2018-19
+		}
+	\end{flushright}
+\end{multicols}
+
+\begin{center}
+	\LARGE{\bfseries{Μέρος 1ο: LSH \& Hypercube}}
+\end{center}
+
+\noindent\makebox[\linewidth]{\rule{\paperwidth}{1pt}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% Main Document %%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Περιγραφή Εργασίας}
+
+\section{Μεταγλώττιση \& Εκτέλεση}
+Τα προγράμματα μεταγλωττίζονται με τη χρήση του αρχείου Makefile και συγκεκριμένα
+τις εντολές:
+
+\begin{itemize}
+	\item \verb|make|
+	\begin{itemize}
+		\item Για τη δημιουργία και των δύο εκτελέσιμων
+	\end{itemize}
+	\item \verb|make lsh|
+	\begin{itemize}
+		\item Για τη δημιουργία μόνο του εκτελέσιμου lsh
+	\end{itemize}
+	\item \verb|make cube|
+	\begin{itemize}
+		\item Για τη δημιουργία μόνο του εκτελέσιμου cube
+	\end{itemize}
+\end{itemize}
+
+
+Για την εκτέλεση του LSH:
+\begin{lstlisting}
+	./lsh -d <input file> -q <query file> -k <int> -L <int> -ο <output file>
+\end{lstlisting}
+
+Όπου $L$ είναι το πλήθος των hash tables που θα δημιουργηθούν και $k$ είναι το
+πλήθος των συναρτήσεων κατακερματισμού $h_i$ ανά hash table.\\
+
+Για την εκτέλεση της τυχαίας προβολής στον υπερκύβο:
+\begin{lstlisting}
+	./cube -d <input file> -q <query file> -k <int> -M <int> -p <int> -ο <output file>
+\end{lstlisting}
+
+Όπου $k$ είναι η διάσταση του υπερκύβου, $M$ το μέγιστο πλήθος σημείων που θα
+ελέγχονται σε κάθε αναζήτηση και $p$ το μέγιστο πλήθος κορυφών που θα ελέγχονται
+ανά αναζήτηση.\\
+
+\section{Οργάνωση Κώδικα}
+Ο κώδικας οργανώνεται σε διαφορετικά αρχεία ανάλογα με το σκοπό και τη
+λειτουργικότητά του. Συγκεκριμένα στα εξής αρχεία:
+
+\begin{itemize}
+	\item \verb|lsh.cpp|
+	\begin{itemize}
+		\item Περιέχει την υλοποίηση του LSH καθώς και την εκτέλεση του με εκτύπωση
+		αποτελεσμάτων και στατιστικών
+	\end{itemize}
+	\item \verb|cube.cpp|
+	\begin{itemize}
+		\item Περιέχει την υλοποίηση της προβολής στον υπερκύβο καθώς και την
+		εκτέλεση του με εκτύπωση αποτελεσμάτων και στατιστικών
+	\end{itemize}
+	\item \verb|hash_table.cpp/.hpp|
+	\begin{itemize}
+		\item Περιέχει την υλοποίηση των πινάκων κατακερματισμού που χρησιμοποιεί
+		ο αλγόριθμος LSH
+	\end{itemize}
+	\item \verb|hasher.cpp/.hpp|
+	\begin{itemize}
+		\item Περιέχει την υλοποίηση των μετρικών που χρησιμοποιούνται και από τις
+		δύο μεθόδους (ευκλείδιας απόστασης και συνημιτόνου)
+	\end{itemize}
+	\item \verb|point.cpp/.hpp|
+	\begin{itemize}
+		\item Περιέχει την υλοποίηση του ΑΤΔ point το οποίο αναπαριστά τα σημεία
+		των datasets και τα διανύσματα των αλγορίθμων
+	\end{itemize}
+	\item \verb|util.cpp/.hpp|
+	\begin{itemize}
+		\item Περιέχει γενικές συναρτήσεις που χρησιμοποιούνται και από τις δύο
+		μεθόδους
+	\end{itemize}
+\end{itemize}
+
+\section{Σύγκριση Μεθόδων}
+Για την σύγκριση των δύο μεθόδων θα χρησιμοποιήσουμε την \textbf{μετρική συνημιτόνου}.
+
+\subsection{Ενδεικτικές Εκτελέσεις}
+Στη συνέχεια βλέπουμε τις επιδόσεις των μεθόδων για διαφορετικές παραμέτρους.
+Είναι πολύ σημαντικό να σημειώθει ως σημείο αναφοράς ότι ο ντετερμινιστικός
+αλγόριθμος πλησιέστερου γείτονα τρέχει κατά μέσο όρο σε χρόνο $0.05$s.
+Χρησιμοποιούμε ένα dataset 10000 σημείων ως είσοδο και ένα dataset 100 σημείων
+για queries.
+
+\subsubsection{LSH}
+\begin{table}[H]
+	\centering
+	\begin{tabular}{c | c || c | c | c}
+		$k$ & $L$ & Max Approx. & Avg. Approx & Avg. Time \\
+		\hline \hline
+		3   & 5   & 1           & 1            & 0.2292   \\
+		\hline
+		4   & 5   & 1.0559      & 1.0011       & 0.2089   \\
+		\hline
+		6   & 5   & 1.1177      & 1.0050       & 0.1469   \\
+		\hline
+		8   & 5   & 1.1070     & 1.0058       & 0.0900   \\
+		\hline
+		10  & 5   & 1.5502     & 1.0367       & 0.0456   \\
+		\hline
+		12  & 5   & 1.8626     & 1.0400       & 0.0416   \\
+		\hline
+		14  & 5   & 2.1293     & 1.0489       & 0.0298   \\
+		\hline
+		15  & 5   & 2.1771     & 1.0786       & 0.0202   \\
+		\hline
+		16  & 5   & 2.3813     & 1.0956       & 0.0274   \\
+		\hline
+		16  & 6   & 2.1134     & 1.0783       & 0.0421   \\
+		\hline
+		16  & 7   & 2.0756     & 1.0808       & 0.0357   \\
+		\hline
+		16  & 8   & 1.8307     & 1.0690       & 0.0235   \\
+		\hline
+		\textbf{16}  & \textbf{9}   & \textbf{1.7638}     & \textbf{1.0438}       & \textbf{0.0341}   \\
+		\hline
+		16  & 10   & 1.6221     & 1.0505       & 0.0464   \\
+	\end{tabular}
+\end{table}
+
+\subsubsection{Hypercube}
+\begin{table}[H]
+	\centering
+	\begin{tabular}{c | c | c || c | c | c}
+		$k$ & $M$ & $p$ & Max Approx. & Avg. Approx & Avg. Time \\
+		\hline \hline
+		4   & 500 & 4   & 5.0334      & 1.3621      & 0.0027    \\
+		\hline
+		5   & 500 & 4   & 4.9590      & 1.4644      & 0.0025    \\
+		\hline
+		6   & 500 & 4   & 3.3547      & 1.2262      & 0.0024    \\
+		\hline
+		6   & 1000 & 4   & 3.1239      & 1.1584      & 0.0050    \\
+		\hline
+		6   & 1000 & 6   & 1.7797      & 1.0844      & 0.0054    \\
+		\hline
+		6   & 1000 & 10   & 2.4349      & 1.0989      & 0.0052    \\
+		\hline
+		6   & 2000 & 10   & 2.6356      & 1.0793      & 0.0069    \\
+		\hline
+		7   & 3000 & 15   & 2.2929      & 1.0542      & 0.0119    \\
+		\hline
+		7   & 3000 & 32   & 1.7262      & 1.0447      & 0.0131    \\
+		\hline
+		\textbf{7}   & \textbf{3000} & \textbf{64}   & \textbf{1.6721}      & \textbf{1.0509}      & \textbf{0.0138}    \\
+		\hline
+		5   & 3000 & 15   & 2.2484      & 1.0857      & 0.0149    \\
+		\hline
+		5   & 3000 & 32   & 1.8530      & 1.0498      & 0.0150    \\
+	\end{tabular}
+\end{table}
+
+\subsubsection{Παρατηρήσεις \& Σχόλια}
+Από τις παραπάνω εκτελέσεις παρατηρούμε ότι και οι δύο μέθοδοι καταφέρνουν
+αρκετά καλά αποτελέσματα με σχετικά παρόμοια ακρίβεια (συγκεκριμένα για $k=16,
+L=9$ στο LSH και $k=7,M=3000,p=64$ στον υπερκύβο). Παρατηρούμε όμως ότι η
+μέθοδος του υπερκύβου είναι περίπου 2 φορές πιο γρήγορη από το LSH και περίπου
+3 φορές πιο γρήγορη από τον ντετερμινιστικό αλγόριθμο.\\
+
+Επίσης, για το LSH παρατηρούμε ότι δεν έχει νόημα η παράμετρος $k$ να παίρνει
+τιμές κάτω από 14 για τη συγκεκριμένη μετρική, διότι ο χρόνος που πετυχαίνει
+είναι χειρότερος από τον ντετερμινιστικό αλγόριθμο. Αυτό συμβαίνει διότι η
+συνάρτηση κατακερματισμού έχει πολλές συγκρούσεις για μικρά $k$.
+
+Ακόμη, στον υπερκύβο παρατηρούμε ότι είναι σημαντικό όταν αυξάνεται το $k$ να
+αυξάνεται και το $p$, το οποίο είναι λογικό αφού όταν έχουμε πολλές κορυφές θα
+πρέπει να επιτρέπουμε στον αλγόριθμο να επισκέπτεται περισσότερες.
+
+\end{document}
