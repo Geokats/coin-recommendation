@@ -87,10 +87,10 @@ hash_table::hash_table(int k, int dim, vector<point> *points, string metric){
   tableSize = points->size() / 4;
 
   //Create hash functions
-  if(metric == "euclidean"){
+  if(metric.compare("euclidean") == 0){
     hashFunc = new eucl_hash(tableSize, k, dim);
   }
-  if(metric == "cosine"){
+  else if(metric.compare("cosine") == 0){
     hashFunc = new cos_hash(tableSize, k, dim);
   }
   else{

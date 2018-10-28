@@ -10,6 +10,7 @@
 
 #include "point.hpp"
 #include "hash_table.hpp"
+#include "util.hpp"
 
 using namespace std;
 
@@ -94,51 +95,6 @@ unordered_set<point*> lsh::rnn(point q, double r){
 }
 
 
-
-point *get_true_nn(point q, double &minDist, vector<point> *points){
-  minDist = q.distance(points->at(0));
-  point *nn = &(points->at(0));
-
-  for(vector<point>::iterator p = points->begin(); p != points->end(); p++){
-    double dist = q.distance(*p);
-    if(dist < minDist){
-      minDist = dist;
-      nn = &(*p);
-    }
-  }
-
-  return nn;
-}
-
-int getPoints(fstream &fs, vector<point> &points){
-  int dim;
-  int i = 0;
-  string line;
-
-  //Read a line from input file
-  getline(fs, line);
-  while(!fs.eof()){
-    //Create a point from the line read
-    point p(line);
-    //Check for consistency of dimensions
-    if(i == 0){
-      dim = p.dim();
-    }
-    else{
-      if(dim != p.dim()){
-        return -1;
-      }
-    }
-    i++;
-
-    //Store new point
-    points.push_back(p);
-    //Read next line
-    getline(fs, line);
-  }
-  return dim;
-}
-
 int main(int argc, char* const *argv) {
   //Command line arguments
   char *inputFileName = NULL;
@@ -188,38 +144,22 @@ int main(int argc, char* const *argv) {
     return 1;
   }
 
-  //Open input file
-  fstream inputFile(inputFileName, ios_base::in);
-  //Get metric
-  string metric;
-  getline(inputFile, metric);
-  metric.erase(0,8);
-  metric.erase(metric.find_first_of(" \t\n\r"), metric.npos);
-  cout << "metric = \"" << metric << "\"\n";
-  //Read and store dataset
+  //Read input file
   vector<point> points;
-  int dim = getPoints(inputFile, points);
-  if(dim == -1){
-    cerr << "Error: Not all vectors are of the same dimension\n";
-    return 1;
-  }
-  inputFile.close();
+  int inputDim;
+  string metric;
+  readInputFile(inputFileName, points, inputDim, metric);
 
-  //Open query file
-  fstream queryFile(queryFileName, ios_base::in);
-  //Get radius
-  string line;
-  getline(queryFile, line);
-  line.erase(0,8);
-  double radius = atof(line.c_str());
-  cout << "radius = " << radius << "\n";
-  //Read and store query points
+  //Read query file
   vector<point> queries;
-  if(getPoints(queryFile, queries) == -1){
-    cerr << "Error: Not all vectors are of the same dimension\n";
-    return 1;
+  double radius;
+  int queryDim;
+  readQueryFile(queryFileName, queries, queryDim, radius);
+
+  if(inputDim == -1 || queryDim == -1 || inputDim != queryDim){
+    cerr << "Error: Vector dimensions don't match";
   }
-  queryFile.close();
+  int dim = inputDim;
 
   //Open output file
   fstream outputFile(outputFileName, ios_base::out);
