@@ -34,12 +34,16 @@ eucl_hash::eucl_hash(int tableSize, int k, int dim){
   }
 }
 
-int eucl_hash::hash(point p){
+vector<int> eucl_hash::hash_h(point p){
   vector<int> h;
-  //Calculate every h
   for(int i = 0; i < k; i++){
     h.push_back((p.product(v[i]) + t[i]) / w);
   }
+  return h;
+}
+
+int eucl_hash::hash(point p){
+  vector<int> h = hash_h(p);
 
   int key = 0;
   for(int i = 0; i < k; i++){
@@ -71,10 +75,21 @@ cos_hash::~cos_hash(){
   }
 }
 
+vector<int> cos_hash::hash_h(point p){
+  vector<int> h;
+  for(int i = 0; i < k; i++){
+    h.push_back(p.product(*r[i]) >= 0 ? 1 : 0);
+  }
+  return h;
+}
+
 int cos_hash::hash(point p){
+  vector<int> h = hash_h(p);
   int key = 0;
   for(int i = 0; i < k; i++){
-    key += p.product(*r[i]) >= 0 ? 1<<k : 0;
+    if(h[i] == 1){
+      key += 1<<i;
+    }
   }
   return key % tableSize;
 }
