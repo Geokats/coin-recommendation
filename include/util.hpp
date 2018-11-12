@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+
 #include "point.hpp"
 
 point *get_true_nn(point q, double &minDist, std::vector<point> *points);

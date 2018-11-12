@@ -1,37 +1,28 @@
 CC = g++
-FLG = -std=c++11
-SRC = lsh.cpp cube.cpp point.cpp point.hpp hash_table.cpp hash_table.hpp hasher.cpp hasher.hpp util.cpp util.hpp
-OBJ = lsh.o cube.o point.o hash_table.o hasher.o util.o
+FLG = -std=c++11 -I ./include
 
+SRCDIR = src
+INCDIR = include
+OBJDIR = obj
+BINDIR = bin
+
+LSH_OBJ = lsh.o point.o hash_table.o hasher.o util.o
+CUBE_OBJ = cube.o point.o hash_table.o hasher.o util.o
 
 all: lsh cube
 
-lsh: lsh.o point.o hash_table.o hasher.o util.o
-	$(CC) $(FLG) lsh.o point.o hash_table.o hasher.o util.o -o lsh
+lsh: $(LSH_OBJ)
+	$(CC) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(LSH_OBJ)) -o $(BINDIR)/lsh
 
-cube: cube.o point.o hash_table.o hasher.o util.o
-	$(CC) $(FLG) cube.o point.o hash_table.o hasher.o util.o -o cube
+cube: $(CUBE_OBJ)
+	$(CC) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(CUBE_OBJ)) -o $(BINDIR)/cube
 
-lsh.o: lsh.cpp
-	$(CC) $(FLG) -c lsh.cpp
-
-cube.o: cube.cpp
-	$(CC) $(FLG) -c cube.cpp
-
-point.o: point.cpp point.hpp
-	$(CC) $(FLG) -c point.cpp
-
-hash_table.o: hash_table.cpp hash_table.hpp
-	$(CC) $(FLG) -c hash_table.cpp
-
-hasher.o: hasher.cpp hasher.hpp
-	$(CC) $(FLG) -c hasher.cpp
-
-util.o: util.cpp util.hpp
-	$(CC) $(FLG) -c util.cpp
+#Recipe for making all object files
+%.o: $(SRCDIR)/%.cpp $(INCDIR)/*.hpp
+	$(CC) $(FLG) -c $< -o $(OBJDIR)/$@
 
 wc:
-	wc $(SRC)
+	wc $(SRCDIR)/* $(INCDIR)/*
 
 clean:
-	rm $(OBJ) lsh cube
+	rm $(OBJDIR)/* $(BINDIR)/*
