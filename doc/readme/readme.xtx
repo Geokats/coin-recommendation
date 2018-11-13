@@ -36,6 +36,9 @@
 \usepackage{graphicx}
 \usepackage{subcaption}
 
+\usepackage{forest}
+\usepackage{wrapfig}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Links %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{hyperref}
 
@@ -104,16 +107,15 @@
 \noindent\makebox[\linewidth]{\rule{\paperwidth}{1pt}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Main Document %%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \section{Περιγραφή Εργασίας}
-
 \section{Μεταγλώττιση \& Εκτέλεση}
+\subsection{Μεταγλώττιση}
 Τα προγράμματα μεταγλωττίζονται με τη χρήση του αρχείου Makefile και συγκεκριμένα
 τις εντολές:
 
 \begin{itemize}
 	\item \verb|make|
 	\begin{itemize}
-		\item Για τη δημιουργία και των δύο εκτελέσιμων
+		\item Για τη δημιουργία και όλων των εκτελέσιμων
 	\end{itemize}
 	\item \verb|make lsh|
 	\begin{itemize}
@@ -123,64 +125,160 @@
 	\begin{itemize}
 		\item Για τη δημιουργία μόνο του εκτελέσιμου cube
 	\end{itemize}
+	\item \verb|make cluster|
+	\begin{itemize}
+		\item Για τη δημιουργία μόνο του εκτελέσιμου cluster
+	\end{itemize}
 \end{itemize}
 
-
-Για την εκτέλεση του LSH:
+\subsection{Εκτέλεση}
+\subsubsection{LSH}
 \begin{lstlisting}
-	./lsh -d <input file> -q <query file> -k <int> -L <int> -ο <output file>
+	./lsh -d <input file> -q <query file> -k <int> -L <int> -o <output file>
 \end{lstlisting}
 
-Όπου $L$ είναι το πλήθος των hash tables που θα δημιουργηθούν και $k$ είναι το
-πλήθος των συναρτήσεων κατακερματισμού $h_i$ ανά hash table.\\
+\subsubsection{Παράμετροι LSH}
+\begin{itemize}
+	\item $L$ είναι το πλήθος των hash tables που θα δημιουργηθούν
+	\item $k$ είναι το 	πλήθος των συναρτήσεων κατακερματισμού $h_i$ ανά hash table
+\end{itemize}
 
-Για την εκτέλεση της τυχαίας προβολής στον υπερκύβο:
+\subsubsection{Hypercube}
 \begin{lstlisting}
-	./cube -d <input file> -q <query file> -k <int> -M <int> -p <int> -ο <output file>
+	./cube -d <input file> -q <query file> -k <int> -M <int> -p <int> -o <output file>
 \end{lstlisting}
 
-Όπου $k$ είναι η διάσταση του υπερκύβου, $M$ το μέγιστο πλήθος σημείων που θα
-ελέγχονται σε κάθε αναζήτηση και $p$ το μέγιστο πλήθος κορυφών που θα ελέγχονται
-ανά αναζήτηση.\\
+\subsubsection{Παράμετροι Hypercube}
+\begin{itemize}
+	\item $k$ είναι η διάσταση του υπερκύβου
+	\item $M$ είναι το μέγιστο πλήθος σημείων που θα ελέγχονται σε κάθε αναζήτηση
+	\item $p$ είναι το μέγιστο πλήθος κορυφών που θα ελέγχονται ανά αναζήτηση
+\end{itemize}
 
-\section{Οργάνωση Κώδικα}
+\subsubsection{Cluster}
+\begin{lstlisting}
+	./cluster
+\end{lstlisting}
+
+\subsubsection{Παράμετροι Cluster}
+\begin{itemize}
+	\item
+\end{itemize}
+
+% \newpage
+
+\section{Οργάνωση Αρχείων \& Φακέλων}
+\begin{wrapfigure}[17]{l}{0.3\textwidth}
+	\begin{forest}
+		for tree={
+		font=\ttfamily,
+		grow'=0,
+		child anchor=west,
+		parent anchor=south,
+		anchor=west,
+		calign=first,
+		edge path={
+		\noexpand\path [draw, \forestoption{edge}]
+		(!u.south west) +(7.5pt,0) |- node[fill,inner sep=1.25pt] {} (.child anchor)\forestoption{edge label};
+		},
+		before typesetting nodes={
+		if n=1
+		{insert before={[,phantom]}}
+		{}
+		},
+		fit=band,
+		before computing xy={l=15pt},
+		}
+		[
+			[bin
+				[...]
+			]
+			[data
+				% [input\_small.txt]
+				% [query\_small.txt]
+				[...]
+			]
+			[doc
+				[readme
+					% [Makefile]
+					% [readme.pdf]
+					% [readme.xtx]
+					[...]
+				]
+			]
+			[include
+				% [hash\_table.hpp]
+				% [hasher.hpp]
+				% [point.hpp]
+				% [searcher.hpp]
+				% [util.hpp]
+				[...]
+			]
+			[obj
+				[...]
+			]
+			[src
+				% [cluster.cpp]
+				% [cube.cpp]
+				% [hash\_table.cpp]
+				% [hasher.cpp]
+				% [lsh.cpp]
+				% [point.cpp]
+				% [searcher.cpp]
+				% [util.cpp]
+				[...]
+			]
+			[test
+				[...]
+			]
+			[Makefile]
+		]
+	\end{forest}
+
+	% \caption{Κατάλογος Αρχείων}
+\end{wrapfigure}
+
 Ο κώδικας οργανώνεται σε διαφορετικά αρχεία ανάλογα με το σκοπό και τη
 λειτουργικότητά του. Συγκεκριμένα στα εξής αρχεία:
 
-\begin{itemize}
-	\item \verb|lsh.cpp|
-	\begin{itemize}
-		\item Περιέχει την υλοποίηση του LSH καθώς και την εκτέλεση του με εκτύπωση
-		αποτελεσμάτων και στατιστικών
-	\end{itemize}
-	\item \verb|cube.cpp|
-	\begin{itemize}
-		\item Περιέχει την υλοποίηση της προβολής στον υπερκύβο καθώς και την
-		εκτέλεση του με εκτύπωση αποτελεσμάτων και στατιστικών
-	\end{itemize}
-	\item \verb|hash_table.cpp/.hpp|
-	\begin{itemize}
-		\item Περιέχει την υλοποίηση των πινάκων κατακερματισμού που χρησιμοποιεί
-		ο αλγόριθμος LSH
-	\end{itemize}
-	\item \verb|hasher.cpp/.hpp|
-	\begin{itemize}
-		\item Περιέχει την υλοποίηση των μετρικών που χρησιμοποιούνται και από τις
-		δύο μεθόδους (ευκλείδιας απόστασης και συνημιτόνου)
-	\end{itemize}
-	\item \verb|point.cpp/.hpp|
-	\begin{itemize}
-		\item Περιέχει την υλοποίηση του ΑΤΔ point το οποίο αναπαριστά τα σημεία
-		των datasets και τα διανύσματα των αλγορίθμων
-	\end{itemize}
-	\item \verb|util.cpp/.hpp|
-	\begin{itemize}
-		\item Περιέχει γενικές συναρτήσεις που χρησιμοποιούνται και από τις δύο
-		μεθόδους
-	\end{itemize}
-\end{itemize}
+\subsection{Λειτουργικότητα Φακέλων}
+\subsubsection{Φάκελος bin}
+Περιέχει τα τελικά εκτελέσιμα αρχεία που παράγονται με τη μεταγλώττιση του
+κώδικα.
+\subsubsection{Φάκελος data}
+Περιέχει όλα τα σύνολα δεδομένων που χρησιμοποιούνται.
+\subsubsection{Φάκελος doc}
+Περιέχει τα αρχεία που περιγράφουν το project (readme, configuration files).
+\subsubsection{Φάκελος include}
+Περιέχει όλα τα αρχεία κεφαλίδας (.hpp) που αναπτύχθηκαν για το project.
+\subsubsection{Φάκελος obj}
+Περιέχει τα object files που παράγονται κατά τη μεταγλώττιση του κώδικα.
+\subsubsection{Φάκελος src}
+Περιέχει όλα τα αρχεία πηγαίου κώδικα (.cpp) που αναπτύχθηκαν για το project.
+\subsubsection{Φάκελος test}
 
-\section{Σύγκριση Μεθόδων}
+\subsection{Λειτουργικότητα Αρχείων}
+\subsubsection{Αρχείο lsh.cpp}
+Περιέχει την υλοποίηση του LSH καθώς και την εκτέλεση του με εκτύπωση
+αποτελεσμάτων και στατιστικών
+\subsubsection{Αρχείο cube.cpp}
+Περιέχει την υλοποίηση της προβολής στον υπερκύβο καθώς και την
+εκτέλεση του με εκτύπωση αποτελεσμάτων και στατιστικών
+\subsubsection{Αρχείο hash\_table.cpp/.hpp}
+Περιέχει την υλοποίηση των πινάκων κατακερματισμού που χρησιμοποιεί
+ο αλγόριθμος LSH
+\subsubsection{Αρχείο hasher.cpp/.hpp}
+Περιέχει την υλοποίηση των μετρικών που χρησιμοποιούνται και από τις
+δύο μεθόδους (ευκλείδιας απόστασης και συνημιτόνου)
+\subsubsection{Αρχείο point.cpp/.hpp}
+Περιέχει την υλοποίηση του ΑΤΔ point το οποίο αναπαριστά τα σημεία
+των datasets και τα διανύσματα των αλγορίθμων
+\subsubsection{Αρχείο util.cpp/.hpp}
+Περιέχει γενικές συναρτήσεις που χρησιμοποιούνται και από τις δύο
+μεθόδους
+
+
+\section{Σύγκριση Μεθόδων LSH \& Hypercube}
 Για την σύγκριση των δύο μεθόδων θα χρησιμοποιήσουμε την \textbf{μετρική συνημιτόνου}.
 
 \subsection{Ενδεικτικές Εκτελέσεις}
@@ -292,5 +390,23 @@ vectors και σε αυτά αποθηκεύονται οι δείκτες τω
 $f: x \rightarrow [f_1(h_1(x),\dots,f_{2^k}(h_{2^k}(x))) \in {\{0,1\}}^{2^k}]$.
 Για την υλοποίηση των συναρτήσεων $f$ χρησιμοποιείται η δομή unordered\_map της
 C++ όπου κάθε τιμή που δεν περιέχεται ήδη στο map προβάλεται τυχαία στο ${\{0,1\}}$.
+
+\section{Clustering}
+\subsection{Initialisation}
+\subsubsection{Random Selection}
+
+\subsubsection{K-means++}
+
+\subsection{Assignments}
+\subsubsection{Lloyd's Assignment}
+
+\subsubsection{Assignment by Range Search with LSH}
+
+\subsubsection{Assignment by Range Search with Hypercube}
+
+\subsection{Update}
+\subsubsection{K-means}
+
+\subsubsection{Partitioning Around Medoids (PAM)}
 
 \end{document}

@@ -19,6 +19,13 @@ using namespace std;
 
 string usageStr = "./cluster -i <input file> -c <configuration file> -o <output file> -d <metric>";
 
+class clusterCreator{
+  private:
+    int k;
+  public:
+    
+};
+
 int main(int argc, char* const *argv) {
   //Command line arguments
   char *inputFileName = NULL;
