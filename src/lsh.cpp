@@ -1,7 +1,6 @@
-#include <iostream>
+ #include <iostream>
 #include <fstream>
 #include <vector>
-#include <unordered_set>
 #include <string>
 
 #include <time.h>
@@ -11,89 +10,9 @@
 #include "point.hpp"
 #include "hash_table.hpp"
 #include "util.hpp"
+#include "searcher.hpp"
 
 using namespace std;
-
-class lsh{
-  private:
-    int k;
-    int L;
-    int dim;
-    string metric;
-
-    vector<point> *points;
-    vector<hash_table*> tables;
-
-  public:
-    lsh(int k, int L, int dim, string metric, vector<point> *points);
-    ~lsh();
-
-    point *nn(point q, double &minDist);
-    unordered_set<point*> rnn(point q, double r);
-};
-
-lsh::lsh(int k, int L, int dim, string metric, vector<point> *points){
-  this->k = k;
-  this->L = L;
-  this->dim = dim;
-  this->metric = metric;
-  this->points = points;
-
-  //Construct hash tables
-  for(int i = 0; i < L; i++){
-    tables.push_back(new hash_table(k, dim, points, metric));
-  }
-}
-
-lsh::~lsh(){
-  for(int i = 0; i < L; i++){
-    delete tables[i];
-  }
-}
-
-point *lsh::nn(point q, double &minDist){
-  minDist = -1;
-  point *nn;
-
-  for(int i = 0; i < L; i++){
-    for(int j = 0; j < k; j++){
-      std::vector<point*> *bucket = tables[i]->getBucket(q);
-
-      for(int k = 0; k < bucket->size(); k++){
-        double dist = q.distance(*(bucket->at(k)));
-        if(minDist == -1){
-          minDist = dist;
-          nn = bucket->at(k);
-        }
-        else if(dist < minDist){
-          minDist = dist;
-          nn = bucket->at(k);
-        }
-      }
-    }
-  }
-
-  return nn;
-}
-
-unordered_set<point*> lsh::rnn(point q, double r){
-  unordered_set<point*> rnns;
-
-  for(int i = 0; i < L; i++){
-    for(int j = 0; j < k; j++){
-      std::vector<point*> *bucket = tables[i]->getBucket(q);
-
-      for(int k = 0; k < bucket->size(); k++){
-        double dist = q.distance(*(bucket->at(k)));
-        if(dist < r){
-          rnns.insert(bucket->at(k));
-        }
-      }
-    }
-  }
-  return rnns;
-}
-
 
 int main(int argc, char* const *argv) {
   //Command line arguments
@@ -165,7 +84,7 @@ int main(int argc, char* const *argv) {
   fstream outputFile(outputFileName, ios_base::out);
 
   //Initialise LSH
-  lsh searcher(k, L, dim, metric, &points);
+  lsh srch(k, L, dim, metric, &points);
   //Timer variables
   clock_t start, end;
   //Statistic variables
@@ -178,7 +97,7 @@ int main(int argc, char* const *argv) {
     outputFile << "Query: " << q->getName() << "\n";
 
     //Find Nearest Neighbors in radius from LSH
-    unordered_set<point*> lsh_rnns = searcher.rnn(*q, radius);
+    unordered_set<point*> lsh_rnns = srch.rnn(*q, radius);
     //Print results to output file
     outputFile << "R-near neighbors:\n";
     for(unordered_set<point*>::iterator i = lsh_rnns.begin(); i != lsh_rnns.end(); i++){
@@ -189,7 +108,7 @@ int main(int argc, char* const *argv) {
     double lsh_minDist;
     //Get start time
     start = clock();
-    point *lsh_nn = searcher.nn(*q, lsh_minDist);
+    point *lsh_nn = srch.nn(*q, lsh_minDist);
     //Get end time
     end = clock();
     //Get duration

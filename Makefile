@@ -1,24 +1,35 @@
 CC = g++
 FLG = -std=c++11 -I ./include
 
+YL_CLR = "\033[1;33m"
+NO_CLR = "\033[0m"
+
 SRCDIR = src
 INCDIR = include
 OBJDIR = obj
 BINDIR = bin
 
-LSH_OBJ = lsh.o point.o hash_table.o hasher.o util.o
-CUBE_OBJ = cube.o point.o hash_table.o hasher.o util.o
+LSH_OBJ = lsh.o searcher.o point.o hash_table.o hasher.o util.o
+CUBE_OBJ = cube.o searcher.o point.o hash_table.o hasher.o util.o
+CLUSTER_OBJ = cluster.o
 
-all: lsh cube
+all: lsh cube cluster
 
 lsh: $(LSH_OBJ)
+	@echo "Creating" $(YL_CLR)$@$(NO_CLR) "executable"
 	$(CC) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(LSH_OBJ)) -o $(BINDIR)/lsh
 
 cube: $(CUBE_OBJ)
+	@echo "Creating" $(YL_CLR)$@$(NO_CLR) "executable"
 	$(CC) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(CUBE_OBJ)) -o $(BINDIR)/cube
+
+cluster: $(CLUSTER_OBJ)
+	@echo "Creating" $(YL_CLR)$@$(NO_CLR) "executable"
+	$(CC) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(CLUSTER_OBJ)) -o $(BINDIR)/cluster
 
 #Recipe for making all object files
 %.o: $(SRCDIR)/%.cpp $(INCDIR)/*.hpp
+	@echo "Creating" $< " ---> " $(YL_CLR)$(OBJDIR)"/"$@$(NO_CLR)
 	$(CC) $(FLG) -c $< -o $(OBJDIR)/$@
 
 wc:
