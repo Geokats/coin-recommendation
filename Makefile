@@ -11,7 +11,7 @@ BINDIR = bin
 
 LSH_OBJ = lsh.o searcher.o point.o hash_table.o hasher.o util.o
 CUBE_OBJ = cube.o searcher.o point.o hash_table.o hasher.o util.o
-CLUSTER_OBJ = cluster.o
+CLUSTER_OBJ = cluster.o point.o util.o
 
 all: lsh cube cluster
 

@@ -5,8 +5,33 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 
 using namespace std;
+
+
+/***************************** Configuration Class ****************************/
+
+
+configuration::configuration(){
+  //Initialize configuration with default values, or -1 if there is no default
+  clusterCount = -1;
+  hashFuncCount = 4;
+  hashTableCount = 5;
+}
+
+bool configuration::clusterConf(){
+  if(clusterCount <= 0 || hashFuncCount <= 0 || hashTableCount <= 0){
+    return false;
+  }
+  else{
+    return true;
+  }
+}
+
+
+/************************** Utility/Helping Functions *************************/
+
 
 point *get_true_nn(point q, double &minDist, vector<point> *points){
   minDist = q.distance(points->at(0));
@@ -83,4 +108,37 @@ void readQueryFile(string queryFileName, vector<point> &queries, int &dim, doubl
     cerr << "Error: Not all vectors are of the same dimension\n";
   }
   queryFile.close();
+}
+
+void readConfigFile(std::string configFileName, configuration &conf){
+  //Open configuration file
+  fstream configFile(configFileName, ios_base::in);
+  //Read a line from configuration file
+  string line;
+  getline(configFile, line);
+  while(!configFile.eof()){
+    //Extract name and value
+    istringstream iss(line);
+    string var, value;
+    getline(iss, var, ' ');
+    getline(iss, value, ' ');
+
+    if(var == "number_of_clusters:"){
+      conf.setClusterCount(stoi(value));
+    }
+    else if(var == "number_of_hash_functions:"){
+      conf.setHashFuncCount(stoi(value));
+    }
+    else if(var == "number_of_hash_tables:"){
+      conf.setHashTableCount(stoi(value));
+    }
+    else{
+      cerr << "Error: Unknown variable \"" << var << "\" given in configuration file\n";
+    }
+
+    //Read next line
+    getline(configFile, line);
+  }
+
+  configFile.close();
 }

@@ -17,13 +17,13 @@
 
 using namespace std;
 
-string usageStr = "./cluster -i <input file> -c <configuration file> -o <output file> -d <metric>";
+string usageStr = "./cluster -i <input file> -c <configuration file> -o <output file> -d <metric>\n";
 
 class clusterCreator{
   private:
     int k;
   public:
-    
+
 };
 
 int main(int argc, char* const *argv) {
@@ -66,7 +66,32 @@ int main(int argc, char* const *argv) {
     return 1;
   }
 
+  //Read configuration file
+  configuration conf;
+  readConfigFile(configFileName, conf);
+  //Check if configuration is correct
+  if(!conf.clusterConf()){
+    cerr << "Error: Bad configuration file given\n";
+    return 1;
+  }
+  else{
+    cout << "Clustering parameters:\n";
+    cout << "\t- Clusters = " << conf.getClusterCount() << "\n";
+    cout << "\t- Hash functions = " << conf.getHashFuncCount() << "\n";
+    cout << "\t- Hash tables = " << conf.getHashTableCount() << "\n";
+    cout << "\n";
+  }
 
+  //Read input file
+  vector<point> points;
+  int inputDim;
+  // string metric;
+  readInputFile(inputFileName, points, inputDim, metric);
+  //Check input dimensions
+  if(inputDim == -1){
+    cerr << "Error: Inconsistent input dataset dimension\n";
+    return 1;
+  }
 
   return 0;
 }
