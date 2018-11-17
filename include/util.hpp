@@ -17,7 +17,7 @@ class configuration{
 
     bool clusterConf();
     /*
-    * Check configuration is sufficient for clustering
+    * Check if configuration is sufficient for clustering
     */
 
     void setClusterCount(int val){clusterCount = val;};

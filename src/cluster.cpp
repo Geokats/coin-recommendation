@@ -14,17 +14,12 @@
 #include <stdlib.h> //atoi
 
 #include "util.hpp"
+#include "point.hpp"
+#include "clusterCreator.hpp"
 
 using namespace std;
 
 string usageStr = "./cluster -i <input file> -c <configuration file> -o <output file> -d <metric>\n";
-
-class clusterCreator{
-  private:
-    int k;
-  public:
-
-};
 
 int main(int argc, char* const *argv) {
   //Command line arguments
@@ -93,5 +88,22 @@ int main(int argc, char* const *argv) {
     return 1;
   }
 
+  //Open output file
+  fstream outputFile(outputFileName, ios_base::out);
+
+  clusterCreator cl(&points, conf.getClusterCount());
+  cout << "Starting cluster creation...\n";
+
+  cl.makeClusters();
+  std::vector<point*> *clusters = cl.getClusters();
+  std::vector<point> *centroids = cl.getCentroids();
+
+  for(int i; i < conf.getClusterCount(); i++){
+    outputFile << "CLUSTER-" << i << " {size: " << clusters[i].size();
+    outputFile << ", centroid: " << centroids->at(i).getName();
+    outputFile << "}\n";
+  }
+
+  outputFile.close();
   return 0;
 }
