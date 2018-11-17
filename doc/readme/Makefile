@@ -1,10 +1,11 @@
 FILENAME = readme
 
-prob1:
+$(FILENAME).pdf: $(FILENAME).xtx
 	xelatex $(FILENAME).xtx
+	xelatex $(FILENAME).xtx
+
+clean:
 	rm $(FILENAME).aux
 	rm $(FILENAME).log
 	rm $(FILENAME).out
-
-verbose:
-	xelatex $(FILENAME).xtx
+	rm $(FILENAME).toc

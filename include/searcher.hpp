@@ -1,3 +1,5 @@
+#ifndef SEARCHER
+
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
@@ -51,3 +53,6 @@ class hypercube : public searcher{
     point *nn(point q, double &minDist);
     std::unordered_set<point*> rnn(point q, double r);
 };
+
+#define SEARCHER
+#endif
