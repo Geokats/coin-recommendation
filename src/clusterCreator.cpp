@@ -1,4 +1,5 @@
 #include "clusterCreator.hpp"
+#include "util.hpp"
 
 #include <iostream>
 #include <random>
@@ -7,19 +8,64 @@
 
 using namespace std;
 
-clusterCreator::clusterCreator(std::vector<point> *points, int k){
+clusterCreator::clusterCreator(std::vector<point> *points, configuration conf){
   this->points = points;
-  this->k = k;
+  this->k = conf.getClusterCount();
 
   this->clusters = NULL;
 
-  this->initialise = &clusterCreator::randomInit;
-  this->assign = &clusterCreator::lloydsAssign;
+  if(conf.getInitialise() == "random"){
+    this->initialise = &clusterCreator::randomInit;
+  }
+  else{
+    cerr << "Initialisation method \"" << conf.getInitialise() << "\" not supported\n";
+  }
+
+  if(conf.getAssign() == "lloyds"){
+    this->assign = &clusterCreator::lloydsAssign;
+  }
+  else{
+    cerr << "Assignment method \"" << conf.getAssign() << "\" not supported\n";
+  }
+
+  if(conf.getUpdate() == "kmeans"){
+    this->update = &clusterCreator::kmeansUpdate;
+  }
+  else{
+    cerr << "Update method \"" << conf.getUpdate() << "\" not supported\n";
+  }
 }
 
 void clusterCreator::makeClusters(){
   (this->*initialise)();
   (this->*assign)();
+
+  for(int i = 0 ; i < 100; i++){
+    //Get new centroids
+    vector<point> newCentroids = (this->*update)();
+    //Check how many centroids have changed
+    int unchanged = 0;
+
+    cout << "[";
+    for(int i = 0; i < k; i++){
+      if(centroids[i].equal(newCentroids[i])){
+        cout << "U";
+        unchanged++;
+      }
+      else{
+        cout << "C";
+      }
+    }
+    cout << "]\n";
+
+    centroids = newCentroids;
+    (this->*assign)();
+
+    if(unchanged == k){
+      cout << "At iteration #" << i << " all centroids were unchanged\n";
+      break;
+    }
+  }
 }
 
 std::vector<point*>* clusterCreator::getClusters(){
@@ -79,4 +125,68 @@ void clusterCreator::lloydsAssign(){
     //Add point to cluster
     clusters[centroid].push_back(&(*it));
   }
+}
+
+
+/*********************************** Update ***********************************/
+
+
+vector<point> clusterCreator::kmeansUpdate(){
+  vector<point> newCentroids;
+
+  for(int i = 0; i < k; i++){
+    //Create a new zero-value point
+    newCentroids.push_back(point("", centroids[i].dim()));
+    for(int j = 0; j < clusters[i].size(); j++){
+      newCentroids[i].add(*(clusters[i].at(j)));
+    }
+    newCentroids[i].div(clusters[i].size());
+  }
+
+  return newCentroids;
+}
+
+
+/********************************* Silhouette *********************************/
+
+
+float clusterCreator::pointSilhouette(point p, int clusterIndex){
+  float a = 0;
+  float b = -1;
+
+  for(int i = 0; i < k; i++){
+    float totalDist = 0;
+    for(int j = 0; j < clusters[i].size(); j++){
+      totalDist += p.distance(*(clusters[i].at(j)));
+    }
+    float avgDist = totalDist / (float) clusters[i].size();
+
+    if(k == clusterIndex){
+      a = avgDist;
+    }
+    else if(b == -1 || avgDist < b){
+      b = avgDist;
+    }
+  }
+
+  float s = a < b ? 1.0 - a/b : b/a - 1.0;
+  return s;
+}
+
+float clusterCreator::clusterSilhouette(int clusterIndex){
+  float totalS = 0;
+  for(int i = 0; i < clusters[clusterIndex].size(); i++){
+    totalS += pointSilhouette(*(clusters[clusterIndex].at(i)), clusterIndex);
+  }
+  float s = totalS / clusters[clusterIndex].size();
+  return s;
+}
+
+vector<float> clusterCreator::silhouette(){
+  vector<float> scores;
+  //Calculate Silhouette score for each cluster
+  for(int i = 0; i < k; i++){
+    scores.push_back(clusterSilhouette(i));
+  }
+  return scores;
 }

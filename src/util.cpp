@@ -18,6 +18,10 @@ configuration::configuration(){
   clusterCount = -1;
   hashFuncCount = 4;
   hashTableCount = 5;
+
+  initialise = "random";
+  assign = "lloyds";
+  update = "kmeans";
 }
 
 bool configuration::clusterConf(){
@@ -131,6 +135,15 @@ void readConfigFile(std::string configFileName, configuration &conf){
     }
     else if(var == "number_of_hash_tables:"){
       conf.setHashTableCount(stoi(value));
+    }
+    else if(var == "initialise:"){
+      conf.setInitialise(value);
+    }
+    else if(var == "assign:"){
+      conf.setAssign(value);
+    }
+    else if(var == "update:"){
+      conf.setUpdate(value);
     }
     else{
       cerr << "Error: Unknown variable \"" << var << "\" given in configuration file\n";

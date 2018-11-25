@@ -90,19 +90,45 @@ int main(int argc, char* const *argv) {
 
   //Open output file
   fstream outputFile(outputFileName, ios_base::out);
+  //Timer variables
+  clock_t start, end;
+  //Initialise cluster creator
+  clusterCreator cl(&points, conf);
 
-  clusterCreator cl(&points, conf.getClusterCount());
   cout << "Starting cluster creation...\n";
-
+  //Get start time
+  start = clock();
   cl.makeClusters();
+  //Get end time
+  end = clock();
+  //Get duration
+  double clusteringTime = (double) (end - start)/CLOCKS_PER_SEC;
   std::vector<point*> *clusters = cl.getClusters();
   std::vector<point> *centroids = cl.getCentroids();
 
-  for(int i; i < conf.getClusterCount(); i++){
+  for(int i = 0; i < conf.getClusterCount(); i++){
     outputFile << "CLUSTER-" << i << " {size: " << clusters[i].size();
-    outputFile << ", centroid: " << centroids->at(i).getName();
+    outputFile << ", centroid: ";
+    if(conf.getUpdate() == "kmeans"){
+      centroids->at(i).printVals(outputFile);
+    }
+    else{
+      outputFile << centroids->at(i).getName();
+    }
     outputFile << "}\n";
   }
+  outputFile << "Clustering time: " << clusteringTime << "\n";
+
+  // cout << "Calculating Silhouette scores...\n";
+  // vector<float> s = cl.silhouette();
+  // float avgS = 0;
+  // outputFile << "Silhouette: [";
+  // for(int i = 0; i < s.size(); i++){
+  //   outputFile << s[i] << ", ";
+  //   avgS += s[i];
+  // }
+  // outputFile << avgS << "]\n";
+
 
   outputFile.close();
   return 0;

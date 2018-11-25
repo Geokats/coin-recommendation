@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "point.hpp"
+#include "util.hpp"
 
 class clusterCreator{
   private:
@@ -16,16 +17,21 @@ class clusterCreator{
     void (clusterCreator::*assign)(void);
     void lloydsAssign();
 
-    void (clusterCreator::*update)(void);
+    std::vector<point> (clusterCreator::*update)(void);
+    std::vector<point> kmeansUpdate();
 
     std::vector<point> *points;
 
   public:
-    clusterCreator(std::vector<point> *points, int k);
+    clusterCreator(std::vector<point> *points, configuration conf);
 
     void makeClusters();
     std::vector<point*>* getClusters();
     std::vector<point>* getCentroids();
+
+    float pointSilhouette(point p, int clusterIndex);
+    float clusterSilhouette(int clusterIndex);
+    std::vector<float> silhouette();
 };
 
 #define CLUSTER_CREATOR
