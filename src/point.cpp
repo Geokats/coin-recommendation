@@ -47,12 +47,35 @@ point::point(std::string line){
   }
 }
 
+point::point(string name, vector<double> vals){
+  this->name = name;
+  this->vals = vals;
+}
+
+point::point(string name, int dim){
+  this->name = name;
+  for(int i = 0; i < dim; i++){
+    this->vals.push_back(0);
+  }
+}
+
 void point::print(){
   cout << name << ": ";
   for(vector<double>::iterator it = vals.begin(); it != vals.end(); it++){
     cout << *it << ' ';
   }
   cout << '\n';
+}
+
+void point::printVals(ostream &stream){
+  stream << "(";
+  for(int i = 0; i < vals.size(); i++){
+    stream << vals[i];
+    if(i + 1 < vals.size()){
+      stream << ", ";
+    }
+  }
+  stream << ")";
 }
 
 int point::dim(){
@@ -95,4 +118,54 @@ double point::product(point p){
   }
 
   return prod;
+}
+
+point point::sum(point p){
+  vector<double> newVals;
+
+  vector<double>::iterator it1 = this->vals.begin();
+  vector<double>::iterator it2 = p.vals.begin();
+
+  for(int i = 0; i < this->vals.size(); i++){
+    newVals.push_back(*it1 + *it2);
+
+    it1++;
+    it2++;
+  }
+
+  return point("", newVals);
+}
+
+bool point::equal(point p){
+  if(this->vals.size() != p.vals.size()){
+    return false;
+  }
+  vector<double>::iterator it1 = this->vals.begin();
+  vector<double>::iterator it2 = p.vals.begin();
+
+  for(int i = 0; i < this->vals.size(); i++){
+    if(*it1 != *it2){
+      return false;
+    }
+  }
+
+  return true;
+}
+
+void point::add(point p){
+  vector<double>::iterator it1 = this->vals.begin();
+  vector<double>::iterator it2 = p.vals.begin();
+
+  for(int i = 0; i < this->vals.size(); i++){
+    *it1 += *it2;
+
+    it1++;
+    it2++;
+  }
+}
+
+void point::div(float f){
+  for(int i = 0; i < this->vals.size(); i++){
+    vals[i] = vals[i] / f;
+  }
 }
