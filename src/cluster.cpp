@@ -106,6 +106,11 @@ int main(int argc, char* const *argv) {
   std::vector<point*> *clusters = cl.getClusters();
   std::vector<point> *centroids = cl.getCentroids();
 
+  outputFile << "Algorithm: ";
+  outputFile << "I: " << conf.getInitialise() << ", ";
+  outputFile << "A: " << conf.getAssign() << ", ";
+  outputFile << "U: " << conf.getUpdate() << "\n";
+
   for(int i = 0; i < conf.getClusterCount(); i++){
     outputFile << "CLUSTER-" << i << " {size: " << clusters[i].size();
     outputFile << ", centroid: ";
@@ -127,6 +132,7 @@ int main(int argc, char* const *argv) {
   //   outputFile << s[i] << ", ";
   //   avgS += s[i];
   // }
+  // avgS = avgS/s.size();
   // outputFile << avgS << "]\n";
 
 

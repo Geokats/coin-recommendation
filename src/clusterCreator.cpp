@@ -36,9 +36,15 @@ clusterCreator::clusterCreator(std::vector<point> *points, configuration conf){
   }
 }
 
+clusterCreator::~clusterCreator(){
+  if(this->clusters != NULL){
+    delete[] this->clusters;
+  }
+}
+
 void clusterCreator::makeClusters(){
-  (this->*initialise)();
-  (this->*assign)();
+  centroids = (this->*initialise)();
+  clusters = (this->*assign)(centroids);
 
   for(int i = 0 ; i < 100; i++){
     //Get new centroids
@@ -58,8 +64,11 @@ void clusterCreator::makeClusters(){
     }
     cout << "]\n";
 
+    //Delete old clusters
+    delete[] clusters;
+    //Update centroids and clusters
     centroids = newCentroids;
-    (this->*assign)();
+    clusters = (this->*assign)(centroids);
 
     if(unchanged == k){
       cout << "At iteration #" << i << " all centroids were unchanged\n";
@@ -80,7 +89,7 @@ std::vector<point>* clusterCreator::getCentroids(){
 /******************************* Initialisation *******************************/
 
 
-void clusterCreator::randomInit(){
+std::vector<point> clusterCreator::randomInit(){
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   //Initialise random int generator
   uniform_int_distribution<int> unif_i(0, points->size() - 1);
@@ -94,37 +103,35 @@ void clusterCreator::randomInit(){
   for(auto it = indices.begin(); it != indices.end(); it++){
     centroids.emplace_back((*points)[*it]);
   }
+
+  return centroids;
 }
 
 
 /********************************* Assignment *********************************/
 
 
-void clusterCreator::lloydsAssign(){
-  //Create new clusters
-  if(clusters != NULL){
-    delete[] clusters;
-  }
-  clusters = new std::vector<point*> [k];
+vector<point*>* clusterCreator::lloydsAssign(std::vector<point> centroids){
+  clusters = new vector<point*> [k];
 
   for(auto it = points->begin(); it != points->end(); it++){
     //Find closest centroid
-    double minDist = it->distance(centroids[0]);
     int centroid = 0;
+    double minDist = it->distance(centroids[0]);
 
-    int i = 1;
-    while(i < k){
+    for(int i = 1; i < k; i++){
       double dist = it->distance(centroids[i]);
       if(dist < minDist){
         minDist = dist;
         centroid = i;
       }
-      i++;
     }
 
     //Add point to cluster
     clusters[centroid].push_back(&(*it));
   }
+
+  return clusters;
 }
 
 
@@ -146,6 +153,14 @@ vector<point> clusterCreator::kmeansUpdate(){
   return newCentroids;
 }
 
+vector<point> clusterCreator::pamUpdate(){
+  vector<point> newCentroids;
+
+
+
+  return newCentroids;
+}
+
 
 /********************************* Silhouette *********************************/
 
@@ -161,7 +176,7 @@ float clusterCreator::pointSilhouette(point p, int clusterIndex){
     }
     float avgDist = totalDist / (float) clusters[i].size();
 
-    if(k == clusterIndex){
+    if(i == clusterIndex){
       a = avgDist;
     }
     else if(b == -1 || avgDist < b){
@@ -169,7 +184,14 @@ float clusterCreator::pointSilhouette(point p, int clusterIndex){
     }
   }
 
-  float s = a < b ? 1.0 - a/b : b/a - 1.0;
+  float s;
+  if(a > b){
+    s = (b-a)/a;
+  }
+  else{
+    s = (b-a)/b;
+  }
+
   return s;
 }
 
