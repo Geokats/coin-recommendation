@@ -83,11 +83,13 @@ int getPoints(fstream &fs, vector<point> &points){
 
 void readInputFile(string inputFileName, vector<point> &points, int &dim, string &metric){
   //Open input file
-  fstream inputFile(inputFileName, ios_base::in);
+  fstream inputFile(inputFileName, fstream::in);
   //Get metric
   getline(inputFile, metric);
-  metric.erase(0,8);
-  metric.erase(metric.find_first_of(" \t\n\r"), metric.npos);
+  metric.erase(0, 8); //erase "@metric"
+  if(metric.find_first_of(" \t\n\r") != string::npos){
+    metric.erase(metric.find_first_of(" \t\n\r"), metric.npos);
+  }
   cout << "metric = \"" << metric << "\"\n";
   //Read and store dataset
   dim = getPoints(inputFile, points);
