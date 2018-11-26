@@ -13,6 +13,7 @@ public:
   point(std::string line);
   point(std::string name, std::vector<double> vals);
   point(std::string name, int dim);
+  point(const point &p);
 
   void print();
   void printVals(std::ostream &stream);

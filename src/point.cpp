@@ -26,7 +26,7 @@ point::point(std::string line){
   string str;
   int i = 0;
   for(int j = 0; j < line.length(); j++){
-    if(line[j] == '\t'){
+    if(line[j] == '\t' || line[j] == ','){
       if(i == 0){
         name = line.substr(i, j - i);
       }
@@ -57,6 +57,11 @@ point::point(string name, int dim){
   for(int i = 0; i < dim; i++){
     this->vals.push_back(0);
   }
+}
+
+point::point(const point &p){
+  this->name = p.name;
+  this->vals = p.vals;
 }
 
 void point::print(){

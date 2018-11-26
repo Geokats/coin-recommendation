@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "point.hpp"
+#include "searcher.hpp"
 #include "util.hpp"
 
 class clusterCreator{
@@ -13,9 +14,12 @@ class clusterCreator{
 
     std::vector<point> (clusterCreator::*initialise)(void);
     std::vector<point> randomInit();
+    std::vector<point> kmeansInit();
 
     std::vector<point*>* (clusterCreator::*assign)(std::vector<point> centroids);
     std::vector<point*>* lloydsAssign(std::vector<point> centroids);
+    searcher *srch;
+    std::vector<point*>* rangeSearchAssign(std::vector<point> centroids);
 
     std::vector<point> (clusterCreator::*update)(void);
     std::vector<point> kmeansUpdate();
