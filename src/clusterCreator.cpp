@@ -14,16 +14,14 @@ using namespace std;
 /******************************* Cost Functions *******************************/
 
 
-float cost(std::vector<point*> *clusters, std::vector<point> centroids){
-  float j = 0;
+float clusterCost(std::vector<point*> cluster, point centroid){
+  float c = 0;
 
-  for(int i = 0; i < centroids.size(); i++){
-    for(j = 0; j < clusters[i].size(); j++){
-      j += clusters[i].at(j)->distance(centroids[i]);
-    }
+  for(int i = 0; i < cluster.size(); i++){
+    c += centroid.distance(*(cluster[i]));
   }
 
-  return j;
+  return c;
 }
 
 
@@ -342,25 +340,20 @@ vector<point> clusterCreator::kmeansUpdate(){
 }
 
 vector<point> clusterCreator::pamUpdate(){
-  float j = cost(clusters, centroids);
-  vector<point> newCentroids = centroids;
+  vector<point> newCentroids;
 
-  for(int i = 0; i < newCentroids.size(); i++){
+  for(int i = 0; i < centroids.size(); i++){
+    float c = clusterCost(clusters[i], centroids[i]);
+    point centroid = centroids[i];
     for(int j = 0; j < clusters[i].size(); j++){
-      point temp = newCentroids[i];
-      //Swap centroid with point
-      newCentroids[i] = *(clusters[i].at(j));
       //Calculate new cost
-      float newJ = cost(clusters, newCentroids);
-      if(newJ < j){
-        //If there is an improvement, keep it
-        j = newJ;
-      }
-      else{
-        //If there is no improvement, revert the swap
-        newCentroids[i] = temp;
+      float newC = clusterCost(clusters[i], *(clusters[i].at(j)));
+      if(newC < c){
+        c = newC;
+        centroid = *(clusters[i].at(j));
       }
     }
+    newCentroids.push_back(centroid);
   }
 
   return newCentroids;
