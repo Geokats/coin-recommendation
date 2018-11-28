@@ -19,6 +19,8 @@ configuration::configuration(){
   hashFuncCount = 4;
   hashTableCount = 5;
 
+  maxIterations = 100;
+
   initialise = "random";
   assign = "lloyds";
   update = "kmeans";
@@ -150,6 +152,9 @@ void readConfigFile(std::string configFileName, configuration &conf){
     }
     else if(var == "number_of_hash_tables:"){
       conf.setHashTableCount(stoi(value));
+    }
+    else if(var == "max_iterations:"){
+      conf.setMaxIterations(stoi(value));
     }
     else if(var == "initialise:"){
       conf.setInitialise(value);

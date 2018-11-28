@@ -31,6 +31,7 @@ float cost(std::vector<point*> *clusters, std::vector<point> centroids){
 
 
 clusterCreator::clusterCreator(std::vector<point> *points, configuration conf){
+  this->conf = conf;
   this->points = points;
   this->k = conf.getClusterCount();
 
@@ -81,16 +82,18 @@ clusterCreator::~clusterCreator(){
 }
 
 void clusterCreator::makeClusters(){
+  cout << "Initialising clusters...\n";
   centroids = (this->*initialise)();
   clusters = (this->*assign)(centroids);
 
-  for(int i = 0 ; i < 100; i++){
+  cout << "Starting clustering...\n";
+  for(int i = 0 ; i < conf.getMaxIterations(); i++){
     //Get new centroids
     vector<point> newCentroids = (this->*update)();
     //Check how many centroids have changed
     int unchanged = 0;
 
-    cout << "[";
+    cout << i+1 << ")\t[";
     for(int i = 0; i < k; i++){
       if(centroids[i].equal(newCentroids[i])){
         cout << "U";
@@ -327,11 +330,17 @@ float clusterCreator::pointSilhouette(point p, int clusterIndex){
 }
 
 float clusterCreator::clusterSilhouette(int clusterIndex){
-  float totalS = 0;
-  for(int i = 0; i < clusters[clusterIndex].size(); i++){
-    totalS += pointSilhouette(*(clusters[clusterIndex].at(i)), clusterIndex);
+  float s;
+  if(clusters[clusterIndex].size() > 1){
+    float totalS = 0;
+    for(int i = 0; i < clusters[clusterIndex].size(); i++){
+      totalS += pointSilhouette(*(clusters[clusterIndex].at(i)), clusterIndex);
+    }
+    s = totalS / clusters[clusterIndex].size();
   }
-  float s = totalS / clusters[clusterIndex].size();
+  else{
+    s = 0;
+  }
   return s;
 }
 

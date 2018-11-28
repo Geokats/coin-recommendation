@@ -8,6 +8,7 @@
 
 class clusterCreator{
   private:
+    configuration conf;
     int k;
     std::vector<point*> *clusters;
     std::vector<point> centroids;

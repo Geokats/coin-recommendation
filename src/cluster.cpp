@@ -116,16 +116,16 @@ int main(int argc, char* const *argv) {
   }
   outputFile << "Clustering time: " << clusteringTime << "\n";
 
-  // cout << "Calculating Silhouette scores...\n";
-  // vector<float> s = cl.silhouette();
-  // float avgS = 0;
-  // outputFile << "Silhouette: [";
-  // for(int i = 0; i < s.size(); i++){
-  //   outputFile << s[i] << ", ";
-  //   avgS += s[i];
-  // }
-  // avgS = avgS/s.size();
-  // outputFile << avgS << "]\n";
+  cout << "Calculating Silhouette scores...\n";
+  vector<float> s = cl.silhouette();
+  float avgS = 0;
+  outputFile << "Silhouette: [";
+  for(int i = 0; i < s.size(); i++){
+    outputFile << s[i] << ", ";
+    avgS += s[i];
+  }
+  avgS = avgS/s.size();
+  outputFile << avgS << "]\n";
 
 
   outputFile.close();

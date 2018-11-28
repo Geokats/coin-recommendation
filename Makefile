@@ -1,5 +1,5 @@
 CXX = g++
-FLG = -std=c++11 -I ./include
+FLG = -std=c++11 -I ./include -O3
 
 YL_CLR = "\033[1;33m"
 NO_CLR = "\033[0m"

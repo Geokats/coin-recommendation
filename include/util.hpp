@@ -13,6 +13,8 @@ class configuration{
     int hashFuncCount;
     int hashTableCount;
 
+    int maxIterations;
+
     std::string initialise;
     std::string assign;
     std::string update;
@@ -30,6 +32,7 @@ class configuration{
     void setClusterCount(int val){clusterCount = val;};
     void setHashFuncCount(int val){hashFuncCount = val;};
     void setHashTableCount(int val){hashTableCount = val;};
+    void setMaxIterations(int val){maxIterations = val;};
     void setInitialise(std::string str){initialise = str;};
     void setAssign(std::string str){assign = str;};
     void setUpdate(std::string str){update = str;};
@@ -38,6 +41,7 @@ class configuration{
     int getClusterCount(){return clusterCount;};
     int getHashFuncCount(){return hashFuncCount;};
     int getHashTableCount(){return hashTableCount;};
+    int getMaxIterations(){return maxIterations;};
     std::string getInitialise(){return initialise;};
     std::string getAssign(){return assign;};
     std::string getUpdate(){return update;};
