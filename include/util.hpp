@@ -17,6 +17,8 @@ class configuration{
     std::string assign;
     std::string update;
 
+    std::string metric;
+
   public:
     configuration();
 
@@ -31,6 +33,7 @@ class configuration{
     void setInitialise(std::string str){initialise = str;};
     void setAssign(std::string str){assign = str;};
     void setUpdate(std::string str){update = str;};
+    void setMetric(std::string str){metric = str;};
 
     int getClusterCount(){return clusterCount;};
     int getHashFuncCount(){return hashFuncCount;};
@@ -38,6 +41,7 @@ class configuration{
     std::string getInitialise(){return initialise;};
     std::string getAssign(){return assign;};
     std::string getUpdate(){return update;};
+    std::string getMetric(){return metric;};
 };
 
 point *get_true_nn(point q, double &minDist, std::vector<point> *points);
@@ -47,6 +51,7 @@ point *get_true_nn(point q, double &minDist, std::vector<point> *points);
 */
 
 void readInputFile(std::string inputFileName, std::vector<point> &points, int &dim, std::string &metric);
+void readInputFile(std::string inputFileName, std::vector<point> &points, int &dim);
 /*
 * Opens file @inputFileName, reads the points and the metric within it and saves
 * them in @points and @metric. Also saves the dimension of the points in

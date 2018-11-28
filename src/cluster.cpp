@@ -19,19 +19,18 @@
 
 using namespace std;
 
-string usageStr = "./cluster -i <input file> -c <configuration file> -o <output file> -d <metric>\n";
+string usageStr = "./cluster -i <input file> -c <configuration file> -o <output file>\n";
 
 int main(int argc, char* const *argv) {
   //Command line arguments
   char *inputFileName = NULL;
   char *configFileName = NULL;
   char *outputFileName = NULL;
-  string metric;
 
   char c;
 
   //Read command line arguments
-  while((c = getopt(argc, argv, "i:c:o:d:")) != -1){
+  while((c = getopt(argc, argv, "i:c:o:")) != -1){
     switch(c){
       case 'i':
         inputFileName = optarg;
@@ -42,9 +41,6 @@ int main(int argc, char* const *argv) {
       case 'o':
         outputFileName = optarg;
         break;
-      case 'd':
-        metric = string(optarg);
-        break;
       default:
         cerr << "Usage: " << usageStr;
         return 1;
@@ -52,12 +48,8 @@ int main(int argc, char* const *argv) {
   }
 
   //Check command line arguments
-  if(inputFileName == NULL || configFileName == NULL || outputFileName == NULL || metric.size() == 0){
+  if(inputFileName == NULL || configFileName == NULL || outputFileName == NULL){
     cerr << "Usage: " << usageStr;
-    return 1;
-  }
-  if(metric != "euclidean" && metric != "cosine"){
-    cerr << "Error: Unknown metric \"" << metric << "\"\n";
     return 1;
   }
 
@@ -81,7 +73,7 @@ int main(int argc, char* const *argv) {
   vector<point> points;
   int inputDim;
   // string metric;
-  readInputFile(inputFileName, points, inputDim, metric);
+  readInputFile(inputFileName, points, inputDim);
   //Check input dimensions
   if(inputDim == -1){
     cerr << "Error: Inconsistent input dataset dimension\n";

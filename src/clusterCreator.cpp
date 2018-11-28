@@ -53,8 +53,7 @@ clusterCreator::clusterCreator(std::vector<point> *points, configuration conf){
   else if(conf.getAssign() == "lsh"){
     //Get dimension of points
     int dim = points->at(0).dim();
-    string metric = "cosine"; //TODO: Add metric in configuration
-    srch = new lsh(conf.getHashFuncCount(), conf.getHashTableCount(), dim, metric, points);
+    srch = new lsh(conf.getHashFuncCount(), conf.getHashTableCount(), dim, conf.getMetric(), points);
     this->assign = &clusterCreator::rangeSearchAssign;
   }
   else{

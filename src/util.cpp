@@ -22,6 +22,8 @@ configuration::configuration(){
   initialise = "random";
   assign = "lloyds";
   update = "kmeans";
+
+  metric = "euclidean";
 }
 
 bool configuration::clusterConf(){
@@ -99,6 +101,17 @@ void readInputFile(string inputFileName, vector<point> &points, int &dim, string
   inputFile.close();
 }
 
+void readInputFile(string inputFileName, vector<point> &points, int &dim){
+  //Open input file
+  fstream inputFile(inputFileName, fstream::in);
+  //Read and store dataset
+  dim = getPoints(inputFile, points);
+  if(dim == -1){
+    cerr << "Error: Not all vectors are of the same dimension\n";
+  }
+  inputFile.close();
+}
+
 void readQueryFile(string queryFileName, vector<point> &queries, int &dim, double &radius){
   //Open query file
   fstream queryFile(queryFileName, ios_base::in);
@@ -146,6 +159,9 @@ void readConfigFile(std::string configFileName, configuration &conf){
     }
     else if(var == "update:"){
       conf.setUpdate(value);
+    }
+    else if(var == "metric:"){
+      conf.setMetric(value);
     }
     else{
       cerr << "Error: Unknown variable \"" << var << "\" given in configuration file\n";
