@@ -49,14 +49,13 @@
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{mybg}{rgb}{0.2,0.2,0.2}
 
 \lstdefinestyle{cmd}{
-	backgroundcolor=\color{backcolour},
-	commentstyle=\color{codegreen},
-	keywordstyle=\color{magenta},
-	numberstyle=\tiny\color{codegray},
-	stringstyle=\color{codepurple},
-	basicstyle=\footnotesize,
+	backgroundcolor=\color{mybg},
+	rulecolor=\color{mybg},
+	stringstyle=\color{white},
+	basicstyle=\footnotesize\color{white},
 	breakatwhitespace=false,
 	breaklines=true,
 	captionpos=b,
@@ -179,7 +178,7 @@
 
 \subsubsection{Cluster}
 \begin{lstlisting}[style=cmd]
-	./cluster -i <input file> -c <configuration file> -o <output file> -d <metric>
+	./cluster -i <input file> -c <configuration file> -o <output file>
 \end{lstlisting}
 
 \subsection{Input File}
@@ -187,7 +186,6 @@
 μορφή:
 
 \begin{lstlisting}[style=data]
-@metric cosine
 x0	0	16	35	5	32	31	14	10	11	78	55	10	45	83	11	6	14	57	...
 x1	14	35	19	20	3	1	13	11	16	119	85	5	0	5	24	26	0	27	...
 x2	0	1	5	3	44	40	20	14	10	100	63	7	44	47	9	6	7	70	...
@@ -195,19 +193,62 @@ x3	12	47	14	25	2	3	4	7	14	122	90	7	0	0	6	14	0	24	...
 ...
 \end{lstlisting}
 
+\begin{lstlisting}[style=data]
+x0,0,16,35,5,32,31,14,10,11,78,55,10,45,83,11,6,14,57,...
+x1,14,35,19,20,3,1,13,11,16,119,85,5,0,5,24,26,0,27,...
+x2,0,1,5,3,44,40,20,14,10,100,63,7,44,47,9,6,7,70,...
+x3,12,47,14,25,2,3,4,7,14,122,90,7,0,0,6,14,0,24,...
+...
+\end{lstlisting}
 
-Η πρώτη γραμμή δίνει τη μετρική που θα χρησιμοποιήσει το πρόγραμμα. Κάθε επόμενη
-γραμμή δίνει και ένα σημείο του συνόλου δεδομένων. Για κάθε σημείο πρώτα δίνεται
-το όνομά του και μετά τα στοιχεία του, τα οποία διαχωρίζονται μεταξύ τους με
-tabs.
+Κάθε γραμμή δίνει και ένα σημείο του συνόλου δεδομένων. Για κάθε σημείο πρώτα
+δίνεταιτο όνομά του και μετά τα στοιχεία του, τα οποία διαχωρίζονται μεταξύ τους
+με tabs ή κόμματα.
 
 \subsection{Configuration File}
+Το configuration file χρησιμοποιείται για την ρύθμιση των παραμέτρων των
+προγραμμάτων.
+
+\subsubsection{Πιθανές Παράμετροι}
+Οι παράμετροι που μπορούν να δωθούν μέσω του configuration file είναι οι εξής:
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{r || c | p{0.45\linewidth}}
+		Παράμετρος                                & Default   & Περιγραφή \\
+		\hline \hline
+		number\_of\_clusters:            <int>    & -         & Πλήθος των clusters που θα δημιουργηθούν \\
+		\hline
+		number\_of\_hash\_functions:     <int>    & 4         & Πλήθος hash functions του LSH \\
+		\hline
+		number\_of\_hash\_tables:        <int>    & 5         & Πλήθος hash tables του LSH \\
+		\hline
+		hypercube\_dimension:            <int>    & 5         & Διάσταση του Hypercube \\
+		\hline
+		hypercube\_max\_point\_checks:   <int>    & 5000      & Μέγιστο πλήθος σημείων που ελέγχει ο Hypercube \\
+		\hline
+		hypercube\_max\_vertex\_checks:  <int>    & 20        & Μέγιστο πλήθος κορυφών που ελέγχει ο Hypercube \\
+		\hline
+		max\_iterations:                 <int>    & 100       & Μέγιστο πλήθος επαναλήψεων στο clustering \\
+		\hline
+		metric:                          <string> & euclidean & Μετρική απόστασης \\
+		\hline
+		initialise:                      <string> & random    & Αλγόριθμος αρχικοποίησης στο clustering \\
+		\hline
+		assign:                          <string> & lloyds    & Αλγόριθμος ανάθεσης στο clustering \\
+		\hline
+		update:                          <string> & kmeans    & Αλγόριθμος ανανέωσης συστάδων στο clustering \\
+	\end{tabular}
+\end{table}
 
 \section{Εργαλεία Ανάπτυξης Project}
 \subsection{Version Control (Git/Github)}
+Για την καλύτερη διαχείρηση των εκδόσεων του κώδικα και των αλλαγών
+χρησιμοποιείται το πρόγραμμα git και η πλατφόρμα Github.
 
 \subsection{Unit Testing (CppUnit)}
 
+\newpage
 \section{Οργάνωση Αρχείων \& Φακέλων}
 \begin{wrapfigure}[17]{l}{0.3\textwidth}
 	\begin{forest}
@@ -316,12 +357,16 @@ tabs.
 εκτυπώνει αποτελέσματα και στατιστικά.
 
 \subsubsection{Αρχείο cluster.cpp}
+Περιέχει την συνάρτηση main που εκτελεί το cluster creator πάνω σε δοσμένο
+dataset και εκτυπώνει αποτελέσματα και στατιστικά.
 
 \subsubsection{Αρχείο searcher.cpp/.hpp}
 Περιέχουν τη virtual κλάση searcher και την υλοποίηση των υποκλάσεών της, lsh
 και hypercube.
 
 \subsubsection{Αρχείο clusterCreator.cpp/.hpp}
+Περιέχουν την υλοποιήση των αλγορίθμων clustering και του αλγορίθμου αξιολόγησης
+silhouette.
 
 \subsubsection{Αρχείο hash\_table.cpp/.hpp}
 Περιέχει την υλοποίηση των πινάκων κατακερματισμού που χρησιμοποιεί
@@ -454,26 +499,10 @@ vectors και σε αυτά αποθηκεύονται οι δείκτες τω
 Στην περίπτωση του υπερκύβου, έχουμε $2^k$ κορυφές οι οποίες έχουν ίδια μορφή με
 τα buckets των hash tables (C++ vectors με pointers σε σημεία), μόνο μια
 συνάρτηση κατακερματισμού με $2^k$ υποσυναρτήσεις και $k$ συναρτήσεις
-$f: x \rightarrow [f_1(h_1(x),\dots,f_{2^k}(h_{2^k}(x))) \in {\{0,1\}}^{2^k}]$.
+$f: x \rightarrow [f_1(h_1(x)),\dots,f_{2^k}(h_{2^k}(x))) \in {\{0,1\}}^{2^k}]$.
 Για την υλοποίηση των συναρτήσεων $f$ χρησιμοποιείται η δομή unordered\_map της
 C++ όπου κάθε τιμή που δεν περιέχεται ήδη στο map προβάλεται τυχαία στο ${\{0,1\}}$.
 
-\section{Clustering}
-\subsection{Initialisation}
-\subsubsection{Random Selection}
-
-\subsubsection{K-means++}
-
-\subsection{Assignments}
-\subsubsection{Lloyd's Assignment}
-
-\subsubsection{Assignment by Range Search with LSH}
-
-\subsubsection{Assignment by Range Search with Hypercube}
-
-\subsection{Update}
-\subsubsection{K-means}
-
-\subsubsection{Partitioning Around Medoids (PAM)}
+\section{Σύγκριση Μεθόδων Clustering}
 
 \end{document}
