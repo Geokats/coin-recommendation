@@ -16,8 +16,13 @@ using namespace std;
 configuration::configuration(){
   //Initialize configuration with default values, or -1 if there is no default
   clusterCount = -1;
+
   hashFuncCount = 4;
   hashTableCount = 5;
+
+  HCDimension = 5;
+  HCMaxPointChecks = 5000;
+  HCMaxVertexChecks = 20;
 
   maxIterations = 100;
 
@@ -29,12 +34,22 @@ configuration::configuration(){
 }
 
 bool configuration::clusterConf(){
-  if(clusterCount <= 0 || hashFuncCount <= 0 || hashTableCount <= 0){
+  if(clusterCount <= 0){
     return false;
   }
-  else{
-    return true;
+
+  if(initialise == "lsh"){
+    if(hashFuncCount <= 0 || hashTableCount <= 0){
+      return false;
+    }
   }
+  else if(initialise == "hypercube"){
+    if(HCDimension <= 0 || HCMaxPointChecks <= 0 || HCMaxVertexChecks <= 0){
+      return false;
+    }
+  }
+
+  return true;
 }
 
 
@@ -152,6 +167,15 @@ void readConfigFile(std::string configFileName, configuration &conf){
     }
     else if(var == "number_of_hash_tables:"){
       conf.setHashTableCount(stoi(value));
+    }
+    else if(var == "hypercube_dimension:"){
+      conf.setHCDimension(stoi(value));
+    }
+    else if(var == "hypercube_max_point_checks:"){
+      conf.setHCMaxPointChecks(stoi(value));
+    }
+    else if(var == "hypercube_max_vertex_checks:"){
+      conf.setHCMaxVertexChecks(stoi(value));
     }
     else if(var == "max_iterations:"){
       conf.setMaxIterations(stoi(value));

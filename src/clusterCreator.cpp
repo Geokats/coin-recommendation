@@ -57,6 +57,12 @@ clusterCreator::clusterCreator(std::vector<point> *points, configuration conf){
     srch = new lsh(conf.getHashFuncCount(), conf.getHashTableCount(), dim, conf.getMetric(), points);
     this->assign = &clusterCreator::rangeSearchAssign;
   }
+  else if(conf.getAssign() == "hypercube"){
+    //Get dimension of points
+    int dim = points->at(0).dim();
+    srch = new hypercube(conf.getHCDimension(), conf.getHCMaxPointChecks(), conf.getHCMaxVertexChecks(), dim, conf.getMetric(), points);
+    this->assign = &clusterCreator::rangeSearchAssign;
+  }
   else{
     cerr << "Assignment method \"" << conf.getAssign() << "\" not supported\n";
   }
@@ -241,12 +247,77 @@ vector<point*>* clusterCreator::rangeSearchAssign(vector<point> centroids){
     }
   }
 
+  unordered_map<point*, int> assignments;
   float radius = minDist / 2.0;
 
-  for(int i = 0; i < centroids.size(); i++){
-    unordered_set<point*> candidates = srch->rnn(centroids[i], radius);
+  while(assignments.size() < points->size() && radius < minDist * 32){
+    unordered_map<point*, vector<int>> newAssignments;
+
+    for(int i = 0; i < centroids.size(); i++){
+      unordered_set<point*> candidates = srch->rnn(centroids[i], radius);
+      for(auto c = candidates.begin(); c != candidates.end(); c++){
+        if(assignments.find(*c) == assignments.end()){
+          //If candidate hasn't been assigned yet
+          if(newAssignments.find(*c) == newAssignments.end()){
+            vector<int> v(1, i);
+            newAssignments.emplace(*c, v);
+          }
+          else{
+            newAssignments[*c].push_back(i);
+          }
+        }
+      }
+    }
+
+    //Resolve points that were close to multiple centroids
+    for(auto a = newAssignments.begin(); a != newAssignments.end(); a++){
+      int centroid;
+      if(a->second.size() > 1){
+        centroid = a->second[0];
+        float minDist = a->first->distance(centroids[a->second[0]]);
+        for(int j = 0; j < a->second.size(); j++){
+          float dist = a->first->distance(centroids[a->second[j]]);
+          if(dist < minDist){
+            minDist = dist;
+            centroid = a->second[j];
+          }
+        }
+      }
+      else{
+        centroid = a->second[0];
+      }
+
+      assignments.emplace(a->first, centroid);
+    }
+
+    radius *= 2.0;
   }
 
+  cout << "Assigned " << assignments.size() << " points out of " << points->size() << "\n";
+
+  //Assign remaining points
+  for(int i = 0; i < points->size(); i++){
+    if(assignments.find(&(points->at(i))) == assignments.end()){
+      int centroid = 0;
+      float minDist = points->at(i).distance(centroids[0]);
+      for(int j = 0; j < centroids.size(); j++){
+        float dist = points->at(i).distance(centroids[j]);
+        if(dist < minDist){
+          minDist = dist;
+          centroid = j;
+        }
+      }
+
+      assignments.emplace(&(points->at(i)), centroid);
+    }
+  }
+
+  cout << "Reassignments: Assigned " << assignments.size() << " points out of " << points->size() << "\n";
+
+  //Put points in clusters
+  for(auto a = assignments.begin(); a != assignments.end(); a++){
+    clusters[a->second].push_back(a->first);
+  }
 
   return clusters;
 }
