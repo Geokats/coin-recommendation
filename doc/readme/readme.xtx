@@ -505,4 +505,53 @@ C++ όπου κάθε τιμή που δεν περιέχεται ήδη στο 
 
 \section{Σύγκριση Μεθόδων Clustering}
 
+\subsection{Σύγκριση Αλγορίθμων Αρχικοποίησης}
+Συγκρίνουμε τους αλγορίθμους αρχικοποίησης τυχαίας επιλογής την παραλαγή του
+k-means.
+Οι συγκρίσεις γίνονται στο μικρό dataset χρησιμοποιώντας την μετρική ευκλείδιας
+απόστασης.
+
+Παρατηρούμε πως δεν υπάρχει σαφής διαφορά στο αποτέλεσμα που παίρνουμε και
+συνήθως οι ποιότητα των clusters είναι σχεδόν ίδια.
+
+\begin{table}[ht]
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\begin{tabular}{c | c | c}
+			$k$ & Time & Avg. Silhouette \\
+			\hline \hline
+			\csvreader[head to column names]{cluster/rand_lloyd_kmeans.csv}{}
+			{\k & \time & \silhouette\\}
+		\end{tabular}
+		\captionsetup{labelformat=empty}
+		\caption{Random \& Lloyd's \& k-Means}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\begin{tabular}{c | c | c}
+			$k$ & Time & Avg. Silhouette \\
+			\hline \hline
+			\csvreader[head to column names]{cluster/kmeans_lloyd_kmeans.csv}{}
+			{\k & \time & \silhouette\\}
+		\end{tabular}
+		\captionsetup{labelformat=empty}
+		\caption{k-Means++ \& Lloyd's \& k-Means}
+	\end{minipage}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[baseline=(current axis.outer east)]
+		\begin{axis}[clip = false, axis line style = {latex-latex},
+			axis lines = left,	xlabel = $k$,	ylabel = $silhouette$,
+			width=0.5\textwidth, legend pos=outer north east]
+			\addplot table [x=k, y=silhouette, col sep=comma,color=red] {cluster/rand_lloyd_kmeans.csv};
+			\addlegendentry{random}
+			\addplot table [x=k, y=silhouette, col sep=comma,color=blue] {cluster/kmeans_lloyd_kmeans.csv};
+			\addlegendentry{k-means++}
+		\end{axis}
+	\end{tikzpicture}
+\end{figure}
+
 \end{document}
