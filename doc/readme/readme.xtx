@@ -231,13 +231,13 @@ x3,12,47,14,25,2,3,4,7,14,122,90,7,0,0,6,14,0,24,...
 		\hline
 		max\_iterations:                 <int>    & 100       & Μέγιστο πλήθος επαναλήψεων στο clustering \\
 		\hline
-		metric:                          <string> & euclidean & Μετρική απόστασης \\
+		metric:                          <string> & euclidean & Μετρική απόστασης (euclidean, cosine)\\
 		\hline
-		initialise:                      <string> & random    & Αλγόριθμος αρχικοποίησης στο clustering \\
+		initialise:                      <string> & random    & Αλγόριθμος αρχικοποίησης στο clustering (random, kmeans) \\
 		\hline
-		assign:                          <string> & lloyds    & Αλγόριθμος ανάθεσης στο clustering \\
+		assign:                          <string> & lloyds    & Αλγόριθμος ανάθεσης στο clustering (lloyds, lsh, hypercube)\\
 		\hline
-		update:                          <string> & kmeans    & Αλγόριθμος ανανέωσης συστάδων στο clustering \\
+		update:                          <string> & kmeans    & Αλγόριθμος ανανέωσης συστάδων στο clustering (kmeans, pam) \\
 	\end{tabular}
 \end{table}
 
@@ -513,8 +513,10 @@ k-means.
 
 Παρατηρούμε πως δεν υπάρχει σαφής διαφορά στο αποτέλεσμα που παίρνουμε και
 συνήθως οι ποιότητα των clusters είναι σχεδόν ίδια.
+Επίσης παρατηρούμε ότι όσο αυξάνεται το  $k$, ο χρόνος που χρειάζεται η
+αρχικοποίηση του k-means++ γίνεται όλο και μεγαλύτερη της τυχαίας.
 
-\begin{table}[ht]
+\begin{table}[H]
 	\begin{minipage}{0.49\textwidth}
 		\centering
 		\begin{tabular}{c | c | c}
@@ -550,6 +552,89 @@ k-means.
 			\addlegendentry{random}
 			\addplot table [x=k, y=silhouette, col sep=comma,color=blue] {cluster/kmeans_lloyd_kmeans.csv};
 			\addlegendentry{k-means++}
+		\end{axis}
+	\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[baseline=(current axis.outer east)]
+		\begin{axis}[clip = false, axis line style = {latex-latex},
+			axis lines = left,	xlabel = $k$,	ylabel = $time$,
+			width=0.5\textwidth, legend pos=outer north east]
+			\addplot table [x=k, y=time, col sep=comma,color=red] {cluster/rand_lloyd_kmeans.csv};
+			\addlegendentry{random}
+			\addplot table [x=k, y=time, col sep=comma,color=blue] {cluster/kmeans_lloyd_kmeans.csv};
+			\addlegendentry{k-means++}
+		\end{axis}
+	\end{tikzpicture}
+\end{figure}
+
+\subsection{Σύγκριση Αλγορίθμων Ανάθεσης}
+
+
+\subsection{Σύγκριση Αλγορίθμων Ανανέωσης}
+Συγκρίνουμε τους αλγορίθμους ανανέωσης k-means και partition arround mediod
+(PAM).
+Οι συγκρίσεις γίνονται στο μικρό dataset χρησιμοποιώντας την μετρική ευκλείδιας
+απόστασης.
+
+Παρατητούμε πως ο αλγόριθμος PAM καταφέρνει αρκετά καλύτερα αποτελέσματα απ'
+ό,τι ο k-means σχεδον για όλα τα $k$.
+Επίσης, αν και για μικρά $k$ ο PAM είναι αργότερος του k-means, όσο μεγαλώνει το
+$k$, ο PAM γίνεται πιο γρήγορος, πετυχαίνοντας τεράστιες διαφορές για μεγάλα
+$k$.
+
+\begin{table}[H]
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\begin{tabular}{c | c | c}
+			$k$ & Time & Avg. Silhouette \\
+			\hline \hline
+			\csvreader[head to column names]{cluster/rand_lloyd_kmeans.csv}{}
+			{\k & \time & \silhouette\\}
+		\end{tabular}
+		\captionsetup{labelformat=empty}
+		\caption{Random \& Lloyd's \& k-Means}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\begin{tabular}{c | c | c}
+			$k$ & Time & Avg. Silhouette \\
+			\hline \hline
+			\csvreader[head to column names]{cluster/rand_lloyds_pam.csv}{}
+			{\k & \time & \silhouette\\}
+		\end{tabular}
+		\captionsetup{labelformat=empty}
+		\caption{Random \& Lloyd's \& PAM}
+	\end{minipage}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[baseline=(current axis.outer east)]
+		\begin{axis}[clip = false, axis line style = {latex-latex},
+			axis lines = left,	xlabel = $k$,	ylabel = $silhouette$,
+			width=0.5\textwidth, legend pos=outer north east]
+			\addplot table [x=k, y=silhouette, col sep=comma,color=red] {cluster/rand_lloyd_kmeans.csv};
+			\addlegendentry{random}
+			\addplot table [x=k, y=silhouette, col sep=comma,color=blue] {cluster/rand_lloyds_pam.csv};
+			\addlegendentry{PAM}
+		\end{axis}
+	\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[baseline=(current axis.outer east)]
+		\begin{axis}[clip = false, axis line style = {latex-latex},
+			axis lines = left,	xlabel = $k$,	ylabel = $time$,
+			width=0.5\textwidth, legend pos=outer north east]
+			\addplot table [x=k, y=time, col sep=comma,color=red] {cluster/rand_lloyd_kmeans.csv};
+			\addlegendentry{random}
+			\addplot table [x=k, y=time, col sep=comma,color=blue] {cluster/rand_lloyds_pam.csv};
+			\addlegendentry{PAM}
 		\end{axis}
 	\end{tikzpicture}
 \end{figure}
