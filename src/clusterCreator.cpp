@@ -116,7 +116,7 @@ void clusterCreator::makeClusters(){
     clusters = (this->*assign)(centroids);
 
     if(unchanged == k){
-      cout << "At iteration #" << i << " all centroids were unchanged\n";
+      cout << "At iteration #" << i+1 << " all centroids were unchanged\n";
       break;
     }
   }
@@ -238,7 +238,7 @@ vector<point*>* clusterCreator::rangeSearchAssign(vector<point> centroids){
     for(int j = 0; j < centroids.size(); j++){
       if(i < j){ //Avoid unecessary calculations
         float dist = centroids[i].distance(centroids[j]);
-        if(dist < minDist){
+        if(dist != 0 && dist < minDist){
           minDist = dist;
         }
       }
