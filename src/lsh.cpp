@@ -122,7 +122,7 @@ int main(int argc, char* const *argv) {
     double true_minDist;
     //Get start time
     start = clock();
-    point *true_nn = get_true_nn(*q, true_minDist, &points);
+    point *true_nn = get_true_nn(*q, true_minDist, &points, metric);
     //Get end time
     end = clock();
     //Get duration

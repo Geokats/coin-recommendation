@@ -13,8 +13,10 @@
 #include "point.hpp"
 #include "hasher.hpp"
 #include "hash_table.hpp"
+#include "util.hpp"
 
 using namespace std;
+
 
 /************************************* LSH ************************************/
 
@@ -47,7 +49,7 @@ point *lsh::nn(point q, double &minDist){
       std::vector<point*> *bucket = tables[i]->getBucket(q);
 
       for(int k = 0; k < bucket->size(); k++){
-        double dist = q.distance(*(bucket->at(k)));
+        double dist = distance(q, *(bucket->at(k)), metric);
         if(minDist == -1){
           minDist = dist;
           nn = bucket->at(k);
@@ -71,7 +73,7 @@ unordered_set<point*> lsh::rnn(point q, double r){
       std::vector<point*> *bucket = tables[i]->getBucket(q);
 
       for(int k = 0; k < bucket->size(); k++){
-        double dist = q.distance(*(bucket->at(k)));
+        double dist = distance(q, *(bucket->at(k)), metric);
         if(dist < r){
           rnns.insert(bucket->at(k));
         }
@@ -185,7 +187,7 @@ point *hypercube::nn(point q, double &minDist){
   int i = 0;
   while(pointsChecked < M && verticesChecked < p && !nVertices.empty()){
     if(i < vertices[key]->size()){
-      double dist = q.distance(*(vertices[key]->at(i)));
+      double dist = distance(q, *(vertices[key]->at(i)), metric);
       if(minDist == -1){
         minDist = dist;
         nn = vertices[key]->at(i);
@@ -235,7 +237,7 @@ unordered_set<point*> hypercube::rnn(point q, double r){
   int i = 0;
   while(pointsChecked < M && verticesChecked < p && !nVertices.empty()){
     if(i < vertices[key]->size()){
-      double dist = q.distance(*(vertices[key]->at(i)));
+      double dist = distance(q, *(vertices[key]->at(i)), metric);
       if(dist < r){
         rnns.insert(vertices[key]->at(i));
       }

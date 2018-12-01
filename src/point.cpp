@@ -91,8 +91,9 @@ string point::getName(){
   return name;
 }
 
-double point::distance(point p){
+double point::euclDist(point p){
   if(this->vals.size() != p.vals.size()){
+    cerr << "Error: Dimensions don't match";
     return -1.0;
   }
   double dist = 0.0;
@@ -107,6 +108,32 @@ double point::distance(point p){
   }
 
   dist = sqrt(dist);
+  return dist;
+}
+
+double point::cosDist(point p){
+  if(this->vals.size() != p.vals.size()){
+    cerr << "Error: Dimensions don't match";
+    return -1.0;
+  }
+
+  float prod = 0;
+  float sumA = 0;
+  float sumB = 0;
+
+  vector<double>::iterator it1 = this->vals.begin();
+  vector<double>::iterator it2 = p.vals.begin();
+  for(int i = 0; i < this->vals.size(); i++){
+    prod += *it1 * *it2;
+    sumA += *it1 * *it1;
+    sumB += *it2 * *it2;
+
+    it1++;
+    it2++;
+  }
+
+  double dist = prod/(sqrt(sumA) * sqrt(sumB));
+
   return dist;
 }
 

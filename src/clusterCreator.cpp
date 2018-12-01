@@ -14,16 +14,15 @@ using namespace std;
 /******************************* Cost Functions *******************************/
 
 
-float clusterCost(std::vector<point*> cluster, point centroid){
+float clusterCost(std::vector<point*> cluster, point centroid, string metric){
   float c = 0;
 
   for(int i = 0; i < cluster.size(); i++){
-    c += centroid.distance(*(cluster[i]));
+    c += distance(centroid, *(cluster[i]), metric);
   }
 
   return c;
 }
-
 
 /******************************* Cluster Creator ******************************/
 
@@ -167,9 +166,9 @@ vector<point> clusterCreator::kmeansInit(){
     vector<float> d;
     float dMax = 0;
     for(int i = 0; i < points->size(); i ++){
-      float minDist = points->at(i).distance(centroids[0]);
+      float minDist = distance(points->at(i), centroids[0], conf.getMetric());
       for(int j = 1; j < centroids.size(); j++){
-        float dist = points->at(i).distance(centroids[0]);
+        float dist = distance(points->at(i), centroids[j], conf.getMetric());
         if(dist < minDist){
           minDist = dist;
         }
@@ -212,10 +211,10 @@ vector<point*>* clusterCreator::lloydsAssign(std::vector<point> centroids){
   for(auto it = points->begin(); it != points->end(); it++){
     //Find closest centroid
     int centroid = 0;
-    double minDist = it->distance(centroids[0]);
+    double minDist = distance(*it, centroids[0], conf.getMetric());
 
     for(int i = 1; i < k; i++){
-      double dist = it->distance(centroids[i]);
+      double dist = distance(*it, centroids[i], conf.getMetric());
       if(dist < minDist){
         minDist = dist;
         centroid = i;
@@ -233,11 +232,11 @@ vector<point*>* clusterCreator::rangeSearchAssign(vector<point> centroids){
   clusters = new vector<point*> [k];
 
   //Calculate min distance between centroids
-  float minDist = centroids[0].distance(centroids[1]);
+  float minDist = distance(centroids[0], centroids[1], conf.getMetric());
   for(int i = 0; i < centroids.size(); i++){
     for(int j = 0; j < centroids.size(); j++){
       if(i < j){ //Avoid unecessary calculations
-        float dist = centroids[i].distance(centroids[j]);
+        float dist = distance(centroids[i], centroids[j], conf.getMetric());
         if(dist != 0 && dist < minDist){
           minDist = dist;
         }
@@ -272,9 +271,9 @@ vector<point*>* clusterCreator::rangeSearchAssign(vector<point> centroids){
       int centroid;
       if(a->second.size() > 1){
         centroid = a->second[0];
-        float minDist = a->first->distance(centroids[a->second[0]]);
+        float minDist = distance(*(a->first), centroids[a->second[0]], conf.getMetric());
         for(int j = 0; j < a->second.size(); j++){
-          float dist = a->first->distance(centroids[a->second[j]]);
+          float dist = distance(*(a->first), centroids[a->second[j]], conf.getMetric());
           if(dist < minDist){
             minDist = dist;
             centroid = a->second[j];
@@ -297,9 +296,9 @@ vector<point*>* clusterCreator::rangeSearchAssign(vector<point> centroids){
   for(int i = 0; i < points->size(); i++){
     if(assignments.find(&(points->at(i))) == assignments.end()){
       int centroid = 0;
-      float minDist = points->at(i).distance(centroids[0]);
+      float minDist = distance(points->at(i), centroids[0], conf.getMetric());
       for(int j = 0; j < centroids.size(); j++){
-        float dist = points->at(i).distance(centroids[j]);
+        float dist = distance(points->at(i), centroids[j], conf.getMetric());
         if(dist < minDist){
           minDist = dist;
           centroid = j;
@@ -343,11 +342,11 @@ vector<point> clusterCreator::pamUpdate(){
   vector<point> newCentroids;
 
   for(int i = 0; i < centroids.size(); i++){
-    float c = clusterCost(clusters[i], centroids[i]);
+    float c = clusterCost(clusters[i], centroids[i], conf.getMetric());
     point centroid = centroids[i];
     for(int j = 0; j < clusters[i].size(); j++){
       //Calculate new cost
-      float newC = clusterCost(clusters[i], *(clusters[i].at(j)));
+      float newC = clusterCost(clusters[i], *(clusters[i].at(j)), conf.getMetric());
       if(newC < c){
         c = newC;
         centroid = *(clusters[i].at(j));
@@ -370,7 +369,7 @@ float clusterCreator::pointSilhouette(point p, int clusterIndex){
   for(int i = 0; i < k; i++){
     float totalDist = 0;
     for(int j = 0; j < clusters[i].size(); j++){
-      totalDist += p.distance(*(clusters[i].at(j)));
+      totalDist += distance(p, *(clusters[i].at(j)), conf.getMetric());
     }
     float avgDist = totalDist / (float) clusters[i].size();
 

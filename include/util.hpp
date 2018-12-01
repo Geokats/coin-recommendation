@@ -59,7 +59,9 @@ class configuration{
     std::string getMetric(){return metric;};
 };
 
-point *get_true_nn(point q, double &minDist, std::vector<point> *points);
+float distance(point p1, point p2, std::string metric);
+
+point *get_true_nn(point q, double &minDist, std::vector<point> *points, std::string metric);
 /*
 * Returns the deterministic nearest neighbor of @q from point set @points and
 * stores the distance between them in @minDist.

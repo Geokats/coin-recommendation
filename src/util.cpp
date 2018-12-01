@@ -53,15 +53,31 @@ bool configuration::clusterConf(){
 }
 
 
+/****************************** Distance Function *****************************/
+
+
+float distance(point p1, point p2, string metric){
+  if(metric == "euclidean"){
+    return p1.euclDist(p2);
+  }
+  else if(metric == "cosine"){
+    return p1.cosDist(p2);
+  }
+  else{
+    return -1;
+  }
+}
+
+
 /************************** Utility/Helping Functions *************************/
 
 
-point *get_true_nn(point q, double &minDist, vector<point> *points){
-  minDist = q.distance(points->at(0));
+point *get_true_nn(point q, double &minDist, vector<point> *points, string metric){
+  minDist = distance(q, points->at(0), metric);
   point *nn = &(points->at(0));
 
   for(vector<point>::iterator p = points->begin(); p != points->end(); p++){
-    double dist = q.distance(*p);
+    double dist = distance(q, *p, metric);
     if(dist < minDist){
       minDist = dist;
       nn = &(*p);

@@ -21,7 +21,8 @@ public:
   int dim();
   std::string getName();
 
-  double distance(point p);
+  double euclDist(point p);
+  double cosDist(point p);
   double product(point p);
 
   point sum(point p);
