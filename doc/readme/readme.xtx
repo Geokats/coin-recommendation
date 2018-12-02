@@ -248,6 +248,11 @@ x3,12,47,14,25,2,3,4,7,14,122,90,7,0,0,6,14,0,24,...
 
 \subsection{Unit Testing (CppUnit)}
 
+Η εγκατάσταση του CppUnit γίνεται με την εντολή:
+\begin{lstlisting}[style=cmd]
+	sudo apt-get install libcppunit-dev
+\end{lstlisting}
+
 \newpage
 \section{Οργάνωση Αρχείων \& Φακέλων}
 \begin{wrapfigure}[17]{l}{0.3\textwidth}
@@ -571,7 +576,13 @@ k-means.
 \end{figure}
 
 \subsection{Σύγκριση Αλγορίθμων Ανάθεσης}
-
+Συγκρίνουμε τους αλγορίθμους ανάθεσης με range search χρησιμοποιώντα LSH και τον
+υπερκύβο.
+Οι συγκρίσεις γίνονται στο μικρό dataset χρησιμοποιώντας την μετρική ευκλείδιας
+απόστασης.
+Για το LSH χρησιμοποιούμε $k=16$ hash function και $L=9$ hash tables.
+Για τον υπερκύβο χρησιμοποιούμε $k=7$ για διάσταση του υπερκύβου, ελέγχουμε το
+πολύ $M=5000$ σημεία και το πολύ $p=64$ ακμές του υπερκύβου.
 
 \subsection{Σύγκριση Αλγορίθμων Ανανέωσης}
 Συγκρίνουμε τους αλγορίθμους ανανέωσης k-means και partition arround mediod

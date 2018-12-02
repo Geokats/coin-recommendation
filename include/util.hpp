@@ -34,6 +34,8 @@ class configuration{
     * Check if configuration is sufficient for clustering
     */
 
+    void print();
+
     void setClusterCount(int val){clusterCount = val;};
     void setHashFuncCount(int val){hashFuncCount = val;};
     void setHashTableCount(int val){hashTableCount = val;};

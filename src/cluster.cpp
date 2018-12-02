@@ -62,11 +62,7 @@ int main(int argc, char* const *argv) {
     return 1;
   }
   else{
-    cout << "Clustering parameters:\n";
-    cout << "\t- Clusters = " << conf.getClusterCount() << "\n";
-    cout << "\t- Hash functions = " << conf.getHashFuncCount() << "\n";
-    cout << "\t- Hash tables = " << conf.getHashTableCount() << "\n";
-    cout << "\n";
+    conf.print();
   }
 
   //Read input file
@@ -121,11 +117,17 @@ int main(int argc, char* const *argv) {
   float avgS = 0;
   outputFile << "Silhouette: [";
   for(int i = 0; i < s.size(); i++){
-    outputFile << s[i] << ", ";
+    outputFile << s[i];
+    if(i + 1 == s.size()){
+      outputFile << "]\n";
+    }
+    else{
+      outputFile << ", ";
+    }
     avgS += s[i];
   }
   avgS = avgS/s.size();
-  outputFile << avgS << "]\n";
+  outputFile << "Average Silhouette: " << avgS << "\n";
 
 
   outputFile.close();

@@ -52,6 +52,19 @@ bool configuration::clusterConf(){
   return true;
 }
 
+void configuration::print(){
+  cout << "Number of clusters: " << getClusterCount() << "\n";
+  if(assign == "lsh"){
+    cout << "Number of hash functions: " << getHashFuncCount() << "\n";
+    cout << "Number of hash tables: " << getHashTableCount() << "\n";
+  }
+  else if(assign == "hypercube"){
+    cout << "Hypercube dimension: " << getHCDimension() << "\n";
+    cout << "Max point checks: " << getHCMaxPointChecks() << "\n";
+    cout << "Max vertex checks: " << getHCMaxVertexChecks() << "\n";
+  }
+}
+
 
 /****************************** Distance Function *****************************/
 
