@@ -595,6 +595,64 @@ k-means.
 Για τον υπερκύβο χρησιμοποιούμε $k=7$ για διάσταση του υπερκύβου, ελέγχουμε το
 πολύ $M=5000$ σημεία και το πολύ $p=64$ ακμές του υπερκύβου.
 
+Όπως είναι αναμενόμενο δεν υπάρχει ουσιαστική διαφορά μεταξύ των σκορ silhouette
+που πετυχαίνουν οι δυο αλγόριθμοι.
+Παρατηρούμε όμως ότι η ανάθεση με LSH είναι ασύμφορα αργή.
+
+\begin{table}[H]
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\begin{tabular}{c | c | c}
+			$k$ & Time & Avg. Silhouette \\
+			\hline \hline
+			\csvreader[head to column names]{cluster/random_lsh_kmeans.csv}{}
+			{\k & \time & \silhouette\\}
+		\end{tabular}
+		\captionsetup{labelformat=empty}
+		\caption{Random \& LSH \& k-Means}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\begin{tabular}{c | c | c}
+			$k$ & Time & Avg. Silhouette \\
+			\hline \hline
+			\csvreader[head to column names]{cluster/random_hypercube_kmeans.csv}{}
+			{\k & \time & \silhouette\\}
+		\end{tabular}
+		\captionsetup{labelformat=empty}
+		\caption{Random \& Hypercube \& k-Means}
+	\end{minipage}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[baseline=(current axis.outer east)]
+		\begin{axis}[clip = false, axis line style = {latex-latex},
+			axis lines = left,	xlabel = $k$,	ylabel = $silhouette$,
+			width=0.5\textwidth, legend pos=outer north east]
+			\addplot table [x=k, y=silhouette, col sep=comma,color=red] {cluster/random_lsh_kmeans.csv};
+			\addlegendentry{lsh}
+			\addplot table [x=k, y=silhouette, col sep=comma,color=blue] {cluster/random_hypercube_kmeans.csv};
+			\addlegendentry{hypercube}
+		\end{axis}
+	\end{tikzpicture}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[baseline=(current axis.outer east)]
+		\begin{axis}[clip = false, axis line style = {latex-latex},
+			axis lines = left,	xlabel = $k$,	ylabel = $time$,
+			width=0.5\textwidth, legend pos=outer north east]
+			\addplot table [x=k, y=time, col sep=comma,color=red] {cluster/random_lsh_kmeans.csv};
+			\addlegendentry{lsh}
+			\addplot table [x=k, y=time, col sep=comma,color=blue] {cluster/random_hypercube_kmeans.csv};
+			\addlegendentry{hypercube}
+		\end{axis}
+	\end{tikzpicture}
+\end{figure}
+
 \subsection{Σύγκριση Αλγορίθμων Ανανέωσης}
 Συγκρίνουμε τους αλγορίθμους ανανέωσης k-means και partition arround mediod
 (PAM).
