@@ -247,13 +247,22 @@ x3,12,47,14,25,2,3,4,7,14,122,90,7,0,0,6,14,0,24,...
 χρησιμοποιείται το πρόγραμμα git και η πλατφόρμα Github.
 
 \subsection{Unit Testing (CppUnit)}
+Για τον έλεγχο της καλής λειτουργίας των κομματιών του project χρησιμοποιείται
+η βιβλιοθήκη CppUnit.
 
 Η εγκατάσταση του CppUnit γίνεται με την εντολή:
 \begin{lstlisting}[style=cmd]
 	sudo apt-get install libcppunit-dev
 \end{lstlisting}
 
-\newpage
+Η μεταγλώττιση των test γίνεται με το αρχείο Makefile και την εντολή:
+\begin{lstlisting}[style=cmd]
+	make test
+\end{lstlisting}
+
+Στη συνέχεια τρέχοντας το εκτελεσίμο test που δημιουργείται στον φάκελο bin
+βλέπουμε αν υπήρχε κάποιο σφάλμα.
+
 \section{Οργάνωση Αρχείων \& Φακέλων}
 \begin{wrapfigure}[17]{l}{0.3\textwidth}
 	\begin{forest}
@@ -351,6 +360,8 @@ x3,12,47,14,25,2,3,4,7,14,122,90,7,0,0,6,14,0,24,...
 Περιέχει όλα τα αρχεία πηγαίου κώδικα (.cpp) που αναπτύχθηκαν για το project.
 
 \subsubsection{Φάκελος test}
+Περιέχει όλα τα αρχεία πηγαίου κώδικα (.cpp) και κεφαλίδας (.hpp) που
+αναπτύχθηκαν για τον έλεγχο σφαλμάτων των αρχείων του project.
 
 \subsection{Οργάνωση Αρχείων Κώδικα}
 \subsubsection{Αρχείο lsh.cpp}

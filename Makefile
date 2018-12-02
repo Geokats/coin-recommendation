@@ -8,10 +8,12 @@ SRCDIR = src
 INCDIR = include
 OBJDIR = obj
 BINDIR = bin
+TESTDIR = test
 
 LSH_OBJ = lsh.o searcher.o point.o hash_table.o hasher.o util.o
 CUBE_OBJ = cube.o searcher.o point.o hash_table.o hasher.o util.o
 CLUSTER_OBJ = cluster.o clusterCreator.o point.o searcher.o hash_table.o hasher.o util.o
+TEST_OBJ = completeTest.o pointTest.o point.o
 
 all: lsh cube cluster
 
@@ -29,6 +31,16 @@ cluster: $(BINDIR)/cluster
 $(BINDIR)/cluster: $(foreach obj, $(CLUSTER_OBJ), $(OBJDIR)/$(obj))
 	@echo "Creating" $(YL_CLR)$@$(NO_CLR) "executable"
 	$(CXX) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(CLUSTER_OBJ)) -o $(BINDIR)/cluster
+
+test: $(BINDIR)/test
+$(BINDIR)/test: $(foreach obj, $(TEST_OBJ), $(OBJDIR)/$(obj))
+	@echo "Creating" $(YL_CLR)$@$(NO_CLR) "executable"
+	$(CXX) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(TEST_OBJ)) -lcppunit -o $(BINDIR)/test
+
+#Recipe for making all object files for tests
+$(OBJDIR)/%Test.o: $(TESTDIR)/%Test.cpp $(TESTDIR)/*.hpp
+	@echo "Creating" $< " ---> " $(YL_CLR)$@$(NO_CLR)
+	$(CXX) $(FLG) -c $< -o $@
 
 #Recipe for making all object files
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/*.hpp
