@@ -124,11 +124,6 @@ hypercube::hypercube(int k, int M, int p, int dim, string metric, vector<point> 
     int key = hashFunc->hash(points->at(i));
     (vertices[key])->push_back(&(points->at(i)));
   }
-
-  for(int i = 0; i < vertexCount; i++){
-    cout << "Vertex #" << i << " has " << vertices[i]->size() << " points\n";
-  }
-
 }
 
 hypercube::~hypercube(){

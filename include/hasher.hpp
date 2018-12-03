@@ -20,7 +20,7 @@ class eucl_hash : public hasher{
   private:
     std::vector<point> v;
     std::vector<double> t;
-    const static unsigned int w = 200;
+    const static unsigned int w = 2;
 
     std::vector<int> r;
 
