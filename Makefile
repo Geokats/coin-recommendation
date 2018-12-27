@@ -13,9 +13,10 @@ TESTDIR = test
 LSH_OBJ = lsh.o searcher.o point.o hash_table.o hasher.o util.o
 CUBE_OBJ = cube.o searcher.o point.o hash_table.o hasher.o util.o
 CLUSTER_OBJ = cluster.o clusterCreator.o point.o searcher.o hash_table.o hasher.o util.o
+RCMND_OBJ = recommendation.o point.o util.o
 TEST_OBJ = completeTest.o pointTest.o point.o
 
-all: lsh cube cluster
+all: lsh cube cluster recommendation
 
 lsh: $(BINDIR)/lsh
 $(BINDIR)/lsh: $(foreach obj, $(LSH_OBJ), $(OBJDIR)/$(obj))
@@ -31,6 +32,11 @@ cluster: $(BINDIR)/cluster
 $(BINDIR)/cluster: $(foreach obj, $(CLUSTER_OBJ), $(OBJDIR)/$(obj))
 	@echo "Creating" $(YL_CLR)$@$(NO_CLR) "executable"
 	$(CXX) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(CLUSTER_OBJ)) -o $(BINDIR)/cluster
+
+recommendation: $(BINDIR)/recommendation
+$(BINDIR)/recommendation: $(foreach obj, $(RCMND_OBJ), $(OBJDIR)/$(obj))
+	@echo "Creating" $(YL_CLR)$@$(NO_CLR) "executable"
+	$(CXX) $(FLG) $(patsubst %.o, $(OBJDIR)/%.o, $(RCMND_OBJ)) -o $(BINDIR)/recommendation
 
 test: $(BINDIR)/test
 $(BINDIR)/test: $(foreach obj, $(TEST_OBJ), $(OBJDIR)/$(obj))

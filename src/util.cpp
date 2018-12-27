@@ -175,7 +175,7 @@ void readQueryFile(string queryFileName, vector<point> &queries, int &dim, doubl
   queryFile.close();
 }
 
-void readConfigFile(std::string configFileName, configuration &conf){
+void readConfigFile(string configFileName, configuration &conf){
   //Open configuration file
   fstream configFile(configFileName, ios_base::in);
   //Read a line from configuration file
@@ -230,4 +230,64 @@ void readConfigFile(std::string configFileName, configuration &conf){
   }
 
   configFile.close();
+}
+
+void readLexiconFile(string lexiconFileName, unordered_map<string, float> &lexicon){
+  int entries = 0;
+  //Open query file
+  fstream lexiconFile(lexiconFileName, ios_base::in);
+  //Get words and score
+  string word, score_str;
+  float score;
+  string line;
+  getline(lexiconFile, line);
+  while(!lexiconFile.eof()){
+    //Extract word and score
+    istringstream iss(line);
+    string var, value;
+    getline(iss, word, '\t');
+    getline(iss, score_str, ' ');
+    score = atof(score_str.c_str());
+
+    lexicon.emplace(word, score);
+    entries++;
+
+    getline(lexiconFile, line);
+  }
+
+  cout << "Created lexicon of " << entries << " entries\n";
+  lexiconFile.close();
+}
+
+void readCoinsFile(string coinsFileName, vector<string> &coins, unordered_map<string, int> &coinLexicon){
+  int entries = 0;
+  //Open query file
+  fstream coinsFile(coinsFileName, ios_base::in);
+  //Get words and score
+  string coin, keyword;
+  string line;
+  getline(coinsFile, line);
+  while(!coinsFile.eof()){
+    //Extract coin name
+    istringstream iss(line);
+    string var, value;
+    getline(iss, coin, '\t');
+
+    //Add new coin to structures
+    coins.emplace_back(coin);
+    coinLexicon.emplace(coin, entries);
+    //Get all keywords about coin
+    getline(iss, keyword, '\t');
+    while(!iss.eof()){
+      coinLexicon.emplace(keyword, entries);
+
+      getline(iss, keyword, '\t');
+    }
+
+    entries++;
+    getline(coinsFile, line);
+  }
+
+  cout << "Created lexicon of keywords for " << entries << " coins\n";
+  coinsFile.close();
 }

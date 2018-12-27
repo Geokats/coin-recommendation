@@ -2,6 +2,7 @@
 #define UTIL
 
 #include <vector>
+#include <unordered_map>
 #include <iostream>
 #include <string>
 
@@ -87,5 +88,9 @@ void readQueryFile(std::string queryFileName, std::vector<point> &queries, int &
 */
 
 void readConfigFile(std::string configFileName, configuration &conf);
+
+void readLexiconFile(std::string lexiconFileName, std::unordered_map<std::string, float> &lexicon);
+
+void readCoinsFile(std::string coinsFileName, std::vector<std::string> &coins, std::unordered_map<std::string, int> &coinLexicon);
 
 #endif
