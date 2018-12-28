@@ -17,7 +17,7 @@ string usageStr = "./cluster -i <input file> -o <output file>\n";
 
 int main(int argc, char* const *argv) {
   //Command line arguments
-  char *inputFileName = NULL;
+  char *tweetsFileName = NULL;
   char *outputFileName = NULL;
   //Other arguments
   string lexiconFileName = "data/vader_lexicon.csv";
@@ -30,7 +30,7 @@ int main(int argc, char* const *argv) {
   while((c = getopt(argc, argv, "i:o:")) != -1){
     switch(c){
       case 'i':
-        inputFileName = optarg;
+        tweetsFileName = optarg;
         break;
       case 'o':
         outputFileName = optarg;
@@ -42,7 +42,7 @@ int main(int argc, char* const *argv) {
   }
 
   //Check command line arguments
-  if(inputFileName == NULL || outputFileName == NULL){
+  if(tweetsFileName == NULL || outputFileName == NULL){
     cerr << "Usage: " << usageStr;
     return 1;
   }
@@ -57,6 +57,11 @@ int main(int argc, char* const *argv) {
   unordered_map<string, int> coinLexicon;
   cout << "Loading coin lexicon from " << coinsFileName << "...\n";
   readCoinsFile(coinsFileName , coins, coinLexicon);
+
+  //Load tweets
+  vector<tweet> tweets;
+  cout << "Loading tweets from " << tweetsFileName << "...\n";
+  readTweetsFile(tweetsFileName, tweets);
 
   //Open output file
   fstream outputFile(outputFileName, ios_base::out);

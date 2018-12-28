@@ -62,6 +62,13 @@ class configuration{
     std::string getMetric(){return metric;};
 };
 
+class tweet{
+  public:
+    int tweetId;
+    int userId;
+    std::vector<std::string> words;
+};
+
 float distance(point p1, point p2, std::string metric);
 
 point *get_true_nn(point q, double &minDist, std::vector<point> *points, std::string metric);
@@ -92,5 +99,7 @@ void readConfigFile(std::string configFileName, configuration &conf);
 void readLexiconFile(std::string lexiconFileName, std::unordered_map<std::string, float> &lexicon);
 
 void readCoinsFile(std::string coinsFileName, std::vector<std::string> &coins, std::unordered_map<std::string, int> &coinLexicon);
+
+void readTweetsFile(std::string tweetsFileName, std::vector<tweet> &tweets);
 
 #endif

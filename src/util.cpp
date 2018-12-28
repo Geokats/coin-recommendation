@@ -261,7 +261,7 @@ void readLexiconFile(string lexiconFileName, unordered_map<string, float> &lexic
 
 void readCoinsFile(string coinsFileName, vector<string> &coins, unordered_map<string, int> &coinLexicon){
   int entries = 0;
-  //Open query file
+  //Open coins file
   fstream coinsFile(coinsFileName, ios_base::in);
   //Get words and score
   string coin, keyword;
@@ -290,4 +290,37 @@ void readCoinsFile(string coinsFileName, vector<string> &coins, unordered_map<st
 
   cout << "Created lexicon of keywords for " << entries << " coins\n";
   coinsFile.close();
+}
+
+void readTweetsFile(string tweetsFileName, vector<tweet> &tweets){
+  int entries = 0;
+  //Open tweets file
+  fstream tweetsFile(tweetsFileName, ios_base::in);
+  //Get tweets
+  string userId, tweetId, word;
+  string line;
+  getline(tweetsFile, line);
+  while(!tweetsFile.eof()){
+    tweet curTweet;
+    //Extract ids
+    istringstream iss(line);
+    string var, value;
+    getline(iss, userId, '\t');
+    curTweet.userId = stoi(userId);
+    getline(iss, tweetId, '\t');
+    curTweet.tweetId = stoi(tweetId);
+
+    //Get all words in tweet
+    while(!iss.eof()){
+      getline(iss, word, '\t');
+      curTweet.words.emplace_back(word);
+    }
+
+    tweets.emplace_back(curTweet);
+    entries++;
+    getline(tweetsFile, line);
+  }
+
+  cout << "Loaded file of " << entries << " tweets\n";
+  tweetsFile.close();
 }
