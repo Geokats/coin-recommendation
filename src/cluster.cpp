@@ -134,6 +134,7 @@ int main(int argc, char* const *argv) {
   outputFile << "Average Silhouette: " << avgS << "\n";
 
   if(verbose){
+    outputFile << "# Cluster Contents\n";
     for(int i = 0; i < conf.getClusterCount(); i++){
       outputFile << "CLUSTER-" << i << " {";
       for(int j = 0; j < clusters[i].size(); j++){
