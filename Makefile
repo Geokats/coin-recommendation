@@ -13,7 +13,7 @@ TESTDIR = test
 LSH_OBJ = lsh.o searcher.o point.o hash_table.o hasher.o util.o
 CUBE_OBJ = cube.o searcher.o point.o hash_table.o hasher.o util.o
 CLUSTER_OBJ = cluster.o clusterCreator.o point.o searcher.o hash_table.o hasher.o util.o
-RCMND_OBJ = recommendation.o point.o util.o
+RCMND_OBJ = recommendation.o recommender.o point.o util.o
 TEST_OBJ = completeTest.o pointTest.o point.o
 
 all: lsh cube cluster recommendation

@@ -324,3 +324,78 @@ void readTweetsFile(string tweetsFileName, vector<tweet> &tweets){
   cout << "Loaded file of " << entries << " tweets\n";
   tweetsFile.close();
 }
+
+void readTweetsFile(string tweetsFileName, unordered_map<int, tweet> &tweets){
+  int entries = 0;
+  //Open tweets file
+  fstream tweetsFile(tweetsFileName, ios_base::in);
+  //Get tweets
+  string userId, tweetId, word;
+  string line;
+  getline(tweetsFile, line);
+  while(!tweetsFile.eof()){
+    tweet curTweet;
+    //Extract ids
+    istringstream iss(line);
+    string var, value;
+    getline(iss, userId, '\t');
+    curTweet.userId = stoi(userId);
+    getline(iss, tweetId, '\t');
+    curTweet.tweetId = stoi(tweetId);
+
+    //Get all words in tweet
+    while(!iss.eof()){
+      getline(iss, word, '\t');
+      curTweet.words.emplace_back(word);
+    }
+
+    tweets.emplace(curTweet.tweetId, curTweet);
+    entries++;
+    getline(tweetsFile, line);
+  }
+
+  cout << "Loaded file of " << entries << " tweets\n";
+  tweetsFile.close();
+}
+
+void readClustersFile(string clustersFileName, vector<vector<int>> &clusters){
+  //Make sure clusters vector is empty
+
+  int entries = 0;
+  //Open tweets file
+  fstream clustersFile(clustersFileName, ios_base::in);
+  //Go to contents part
+  string line;
+  getline(clustersFile, line);
+  while(!clustersFile.eof()){
+    if(line.compare("# Cluster Contents") == 0){
+      break;
+    }
+    else{
+      getline(clustersFile, line);
+    }
+  }
+  //Get clusters
+  string userId, tweetId, word;
+  getline(clustersFile, line);
+  while(!clustersFile.eof()){
+    vector<int> curCluster;
+    //Get rid of first characters
+    istringstream iss(line);
+    string id;
+    getline(iss, id, '{');
+    //Extract ids
+    while(!iss.eof()){
+      getline(iss, id, ' ');
+      id.pop_back();
+      curCluster.push_back(stoi(id.c_str()));
+    }
+
+    clusters.emplace_back(curCluster);
+    entries++;
+    getline(clustersFile, line);
+  }
+
+  cout << "Loaded file of " << entries << " clusters\n";
+  clustersFile.close();
+}

@@ -102,4 +102,8 @@ void readCoinsFile(std::string coinsFileName, std::vector<std::string> &coins, s
 
 void readTweetsFile(std::string tweetsFileName, std::vector<tweet> &tweets);
 
+void readTweetsFile(std::string tweetsFileName, std::unordered_map<int, tweet> &tweets);
+
+void readClustersFile(std::string clustersFileName, std::vector<std::vector<int>> &clusters);
+
 #endif
