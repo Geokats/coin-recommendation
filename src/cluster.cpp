@@ -26,11 +26,12 @@ int main(int argc, char* const *argv) {
   char *inputFileName = NULL;
   char *configFileName = NULL;
   char *outputFileName = NULL;
+  bool verbose = false;
 
   char c;
 
   //Read command line arguments
-  while((c = getopt(argc, argv, "i:c:o:")) != -1){
+  while((c = getopt(argc, argv, "i:c:o:v")) != -1){
     switch(c){
       case 'i':
         inputFileName = optarg;
@@ -40,6 +41,9 @@ int main(int argc, char* const *argv) {
         break;
       case 'o':
         outputFileName = optarg;
+        break;
+      case 'v':
+        verbose = true;
         break;
       default:
         cerr << "Usage: " << usageStr;
@@ -129,6 +133,18 @@ int main(int argc, char* const *argv) {
   avgS = avgS/s.size();
   outputFile << "Average Silhouette: " << avgS << "\n";
 
+  if(verbose){
+    for(int i = 0; i < conf.getClusterCount(); i++){
+      outputFile << "CLUSTER-" << i << " {";
+      for(int j = 0; j < clusters[i].size(); j++){
+        outputFile << clusters[i].at(j)->getName();
+        if(j + 1 != clusters[i].size()){
+          outputFile << ", ";
+        }
+      }
+      outputFile << "}\n";
+    }
+  }
 
   outputFile.close();
   return 0;
