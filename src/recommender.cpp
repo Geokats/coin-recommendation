@@ -132,7 +132,31 @@ point getScorePrediction(point user, unordered_set<point*> neighbors){
     simSum += abs(sim);
 
     point temp(user);
-    temp.diff(*n);
+    temp.sub(*n);
+    temp.mult(sim);
+    sum.add(temp);
+  }
+  sum.div(simSum);
+  point prediction = user.sum(sum);
+
+  return prediction;
+}
+
+point getScorePrediction(point user, vector<point*> neighbors){
+  point sum("sum", user.dim());
+  float simSum = 0;
+
+  for(auto n : neighbors){
+    if(n->equal(user)){
+      //If the user is in the neighbors, then skip him
+      continue;
+    }
+
+    float sim = user.cosDist(*n);
+    simSum += abs(sim);
+
+    point temp(user);
+    temp.sub(*n);
     temp.mult(sim);
     sum.add(temp);
   }
@@ -143,9 +167,6 @@ point getScorePrediction(point user, unordered_set<point*> neighbors){
 }
 
 vector<string> getCoinRecommendations(point userNotNormalized, point prediction, vector<string> coins, int k){
-  userNotNormalized.print();
-  prediction.print();
-
   multimap<double, string> coinScores;
 
   for(int i = 0; i < prediction.dim(); i++){
@@ -158,11 +179,11 @@ vector<string> getCoinRecommendations(point userNotNormalized, point prediction,
   int recommendationCount = k > coinScores.size() ? coinScores.size() : k;
   vector<string> recommendations;
 
-  auto entry = coinScores.begin();
+  auto entry = coinScores.end();
+  entry--;
   for(int i = 0; i < recommendationCount; i++){
-    cout << entry->first << " : " << entry->second << "\n";
     recommendations.emplace_back(entry->second);
-    entry++;
+    entry--;
   }
 
   return recommendations;
@@ -190,18 +211,6 @@ unordered_map<int, point> getLSHPredictions(int k, int L, unordered_map<int, poi
       radius *= 2;
     }while(neighbors.size() < 50 && tries < 50);
 
-    for(auto i1 : neighbors){
-      for(auto i2 : neighbors){
-        if(i1 != i2){
-          if(i1->getName().compare(i2->getName()) == 0){
-            cout << "!!\n";
-          }
-        }
-      }
-    }
-
-    // cout << "User #" << entry.first << " has " << neighbors.size() << " neighbors after " << tries << " tries\n";
-
     //Make prediction based on neighbors
     point prediction = getScorePrediction(entry.second, neighbors);
     predictions.emplace(entry.first, prediction);
@@ -211,6 +220,8 @@ unordered_map<int, point> getLSHPredictions(int k, int L, unordered_map<int, poi
 }
 
 unordered_map<int, point> getClusteringPredictions(configuration conf, unordered_map<int, point> u, int coinsCount){
+  unordered_map<int, point> predictions;
+
   //Get user scores to be used as points for clustering
   vector<point> scores;
   for(auto entry : u){
@@ -219,4 +230,29 @@ unordered_map<int, point> getClusteringPredictions(configuration conf, unordered
 
   //Initialise clustering
   clusterCreator cl = clusterCreator(&scores, conf);
+  cl.makeClusters();
+
+  vector<point*>* clusters =  cl.getClusters();
+
+  for(auto entry : u){
+    //Find in which cluster it belongs
+    int clusterIndex = -1;
+    for(int i = 0; i < conf.getClusterCount(); i++){
+      for(int j = 0; j < clusters[i].size(); j++){
+        if(clusters[i].at(j)->equal(entry.second)){
+          clusterIndex = i;
+          break;
+        }
+      }
+      if(clusterIndex != -1){
+        break;
+      }
+    }
+
+    //Make prediction based on cluster
+    point prediction = getScorePrediction(entry.second, clusters[clusterIndex]);
+    predictions.emplace(entry.first, prediction);
+  }
+
+  return predictions;
 }

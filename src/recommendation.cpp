@@ -77,6 +77,9 @@ int main(int argc, char* const *argv) {
   //Open output file
   fstream outputFile(outputFileName, ios_base::out);
 
+  //Timer variables
+  clock_t start, end;
+
   //Calculate score vectors u for each user
   cout << "Calculating user score vectors...\n";
   unordered_map<int, point> u = getUsersScore(tweets, lexicon, coins, coinLexicon);
@@ -103,10 +106,20 @@ int main(int argc, char* const *argv) {
 
   //Get LSH recommendations
   cout << "Calculating recommendations with LSH...\n";
-  unordered_map<int, point> predictions = getLSHPredictions(16, 9, u, coins.size());
-  for(auto entry : predictions){
+  start = clock();
+  unordered_map<int, point> lshPredictions = getLSHPredictions(16, 9, u, coins.size());
+  end = clock();
+  double lshTime = (double) (end - start)/CLOCKS_PER_SEC;
+  outputFile << "Cosine LSH\n";
+  for(auto entry : lshPredictions){
     vector<string> recommendations = getCoinRecommendations(u.at(entry.first), entry.second, coins, 5);
+    outputFile << entry.first << ": ";
+    for(auto coin : recommendations){
+      outputFile << coin + " ";
+    }
+    outputFile << "\n";
   }
+  outputFile << "Execution time: " << lshTime << "\n\n";
 
   //Get clustering recommendations
   configuration conf;
@@ -117,7 +130,20 @@ int main(int argc, char* const *argv) {
   conf.setMetric("euclidean");
 
   cout << "Calculating recommendations with clustering...\n";
-  unordered_map<int, point> predictions = getClusteringPredictions(conf, u, coins.size());
+  start = clock();
+  unordered_map<int, point> clusterPredictions = getClusteringPredictions(conf, u, coins.size());
+  end = clock();
+  double clusteringTime = (double) (end - start)/CLOCKS_PER_SEC;
+  outputFile << "Clustering\n";
+  for(auto entry : clusterPredictions){
+    vector<string> recommendations = getCoinRecommendations(u.at(entry.first), entry.second, coins, 5);
+    outputFile << entry.first << ": ";
+    for(auto coin : recommendations){
+      outputFile << coin + " ";
+    }
+    outputFile << "\n";
+  }
+  outputFile << "Execution time: " << clusteringTime << "\n";
 
   outputFile.close();
   return 0;

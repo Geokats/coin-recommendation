@@ -32,6 +32,7 @@ public:
   bool equal(point p);
 
   void add(point p);
+  void sub(point p);
   void div(float f);
   void mult(float f);
 

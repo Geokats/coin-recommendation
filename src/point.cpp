@@ -220,6 +220,18 @@ void point::add(point p){
   }
 }
 
+void point::sub(point p){
+  vector<double>::iterator it1 = this->vals.begin();
+  vector<double>::iterator it2 = p.vals.begin();
+
+  for(int i = 0; i < this->vals.size(); i++){
+    *it1 -= *it2;
+
+    it1++;
+    it2++;
+  }
+}
+
 void point::div(float f){
   for(int i = 0; i < this->vals.size(); i++){
     vals[i] = vals[i] / f;
