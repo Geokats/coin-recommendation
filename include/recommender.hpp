@@ -18,9 +18,11 @@ std::vector<point> getClustersScore(std::vector<std::vector<int>> clusters, std:
 
 std::unordered_map<int,point> normaliseScores(std::unordered_map<int,point> &scores);
 
-std::unordered_map<int, point> getLSHPredictions(int k, int L, std::unordered_map<int, point> u, int coinsCount);
+std::unordered_map<int, point> getLSHPredictions(int k, int L, std::unordered_map<int, point> users, std::vector<point> data, int coinsCount);
+std::unordered_map<int, point> getLSHPredictions(int k, int L, std::unordered_map<int, point> users, std::unordered_map<int, point> data, int coinsCount);
 
-std::unordered_map<int, point> getClusteringPredictions(configuration conf, std::unordered_map<int, point> u, int coinsCount);
+std::unordered_map<int, point> getClusteringPredictions(configuration conf, std::unordered_map<int, point> users, std::vector<point> data, int coinsCount);
+std::unordered_map<int, point> getClusteringPredictions(configuration conf, std::unordered_map<int, point> users, std::unordered_map<int, point> data, int coinsCount);
 
 std::vector<std::string> getCoinRecommendations(point userNotNormalized, point prediction, std::vector<std::string> coins, int k);
 

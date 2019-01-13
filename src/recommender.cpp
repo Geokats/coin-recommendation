@@ -189,18 +189,12 @@ vector<string> getCoinRecommendations(point userNotNormalized, point prediction,
   return recommendations;
 }
 
-unordered_map<int, point> getLSHPredictions(int k, int L, unordered_map<int, point> u, int coinsCount){
+unordered_map<int, point> getLSHPredictions(int k, int L, unordered_map<int, point> users, vector<point> data, int coinsCount){
   unordered_map<int, point> predictions;
-
-  //Get user scores to be used as points for LSH
-  vector<point> scores;
-  for(auto entry : u){
-    scores.emplace_back(entry.second);
-  }
   //Initialise LSH
-  lsh srch = lsh(k, L, coinsCount, "euclidean", &scores);
+  lsh srch = lsh(k, L, coinsCount, "cosine", &data);
 
-  for(auto entry : u){
+  for(auto entry : users){
     unordered_set<point*> neighbors;
     int tries = 0;
     float radius = 0.01;
@@ -219,33 +213,35 @@ unordered_map<int, point> getLSHPredictions(int k, int L, unordered_map<int, poi
   return predictions;
 }
 
-unordered_map<int, point> getClusteringPredictions(configuration conf, unordered_map<int, point> u, int coinsCount){
-  unordered_map<int, point> predictions;
-
-  //Get user scores to be used as points for clustering
+unordered_map<int, point> getLSHPredictions(int k, int L, unordered_map<int, point> users, unordered_map<int, point> data, int coinsCount){
+  //Get scores to be used as points for LSH
   vector<point> scores;
-  for(auto entry : u){
+  for(auto entry : data){
     scores.emplace_back(entry.second);
   }
+  return getLSHPredictions(k, L, users, scores, coinsCount);
+}
+
+unordered_map<int, point> getClusteringPredictions(configuration conf, unordered_map<int, point> users, vector<point> data, int coinsCount){
+  unordered_map<int, point> predictions;
 
   //Initialise clustering
-  clusterCreator cl = clusterCreator(&scores, conf);
+  clusterCreator cl = clusterCreator(&data, conf);
   cl.makeClusters();
 
   vector<point*>* clusters =  cl.getClusters();
+  vector<point>* centroids =  cl.getCentroids();
 
-  for(auto entry : u){
+  for(auto entry : users){
     //Find in which cluster it belongs
-    int clusterIndex = -1;
-    for(int i = 0; i < conf.getClusterCount(); i++){
-      for(int j = 0; j < clusters[i].size(); j++){
-        if(clusters[i].at(j)->equal(entry.second)){
-          clusterIndex = i;
-          break;
-        }
-      }
-      if(clusterIndex != -1){
-        break;
+    int clusterIndex = 0;
+    double minDist = (*centroids).at(0).euclDist(entry.second);
+
+    for(int i = 1; i < conf.getClusterCount(); i++){
+      float dist = (*centroids).at(i).euclDist(entry.second);
+      if(dist < minDist){
+        minDist = dist;
+        clusterIndex = i;
       }
     }
 
@@ -255,4 +251,13 @@ unordered_map<int, point> getClusteringPredictions(configuration conf, unordered
   }
 
   return predictions;
+}
+
+unordered_map<int, point> getClusteringPredictions(configuration conf, unordered_map<int, point> users, unordered_map<int, point> data, int coinsCount){
+  //Get scores to be used as points for clustering
+  vector<point> scores;
+  for(auto entry : data){
+    scores.emplace_back(entry.second);
+  }
+  return getClusteringPredictions(conf, users, scores, coinsCount);
 }

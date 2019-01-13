@@ -1,4 +1,5 @@
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -22,6 +23,8 @@ int main(int argc, char* const *argv) {
   char *tweetsFileName = NULL;
   char *outputFileName = NULL;
   char *clustersFileName = NULL;
+  bool lshMode = false;
+  bool clusterMode = false;
   //Other arguments
   string lexiconFileName = "data/vader_lexicon.csv";
   string coinsFileName = "data/coins_queries.csv";
@@ -30,7 +33,7 @@ int main(int argc, char* const *argv) {
   char ch;
 
   //Read command line arguments
-  while((ch = getopt(argc, argv, "i:o:c:")) != -1){
+  while((ch = getopt(argc, argv, "i:o:c:m:")) != -1){
     switch(ch){
       case 'i':
         tweetsFileName = optarg;
@@ -40,6 +43,14 @@ int main(int argc, char* const *argv) {
         break;
       case 'c':
         clustersFileName = optarg;
+        break;
+      case 'm':
+        if(strcmp(optarg, "lsh") == 0){
+          lshMode = true;
+        }
+        else if(strcmp(optarg, "cluster") == 0){
+          clusterMode = true;
+        }
         break;
       default:
         cerr << "Usage: " << usageStr;
@@ -94,45 +105,65 @@ int main(int argc, char* const *argv) {
   vector<point> c = getClustersScore(clusters, tweets, lexicon, coins, coinLexicon);
 
   //Get LSH recommendations
-  cout << "Calculating recommendations with LSH...\n";
-  start = clock();
-  unordered_map<int, point> lshPredictions = getLSHPredictions(16, 9, uNorm, coins.size());
-  end = clock();
-  double lshTime = (double) (end - start)/CLOCKS_PER_SEC;
-  outputFile << "Cosine LSH\n";
-  for(auto entry : lshPredictions){
-    vector<string> recommendations = getCoinRecommendations(u.at(entry.first), entry.second, coins, 5);
-    outputFile << entry.first << ": ";
-    for(auto coin : recommendations){
-      outputFile << coin + " ";
+  if(lshMode){
+    cout << "Calculating recommendations with LSH...\n";
+    start = clock();
+    unordered_map<int, point> lshPredictionsA = getLSHPredictions(16, 4, uNorm, uNorm, coins.size());
+    unordered_map<int, point> lshPredictionsB = getLSHPredictions(16, 4, uNorm, c, coins.size());
+    end = clock();
+    double lshTime = (double) (end - start)/CLOCKS_PER_SEC;
+    outputFile << "Cosine LSH\n";
+    for(auto entry : u){
+      //Get recommended coins
+      vector<string> recommendationsA = getCoinRecommendations(entry.second, lshPredictionsA.at(entry.first), coins, 5);
+      vector<string> recommendationsB = getCoinRecommendations(entry.second, lshPredictionsB.at(entry.first), coins, 2);
+      //Print output
+      outputFile << entry.first << ": ";
+      for(auto coin : recommendationsA){
+        outputFile << coin + " ";
+      }
+      outputFile << "|| ";
+      for(auto coin : recommendationsB){
+        outputFile << coin + " ";
+      }
+      outputFile << "\n";
     }
-    outputFile << "\n";
+    outputFile << "Execution time: " << lshTime << "\n\n";
   }
-  outputFile << "Execution time: " << lshTime << "\n\n";
 
-  //Get clustering recommendations
-  configuration conf;
-  conf.setClusterCount(10);
-  conf.setInitialise("random");
-  conf.setAssign("lloyds");
-  conf.setUpdate("kmeans");
-  conf.setMetric("euclidean");
+  if(clusterMode){
+    //Get clustering recommendations
+    configuration conf;
+    conf.setClusterCount(10);
+    conf.setInitialise("random");
+    conf.setAssign("lloyds");
+    conf.setUpdate("kmeans");
+    conf.setMetric("euclidean");
 
-  cout << "Calculating recommendations with clustering...\n";
-  start = clock();
-  unordered_map<int, point> clusterPredictions = getClusteringPredictions(conf, uNorm, coins.size());
-  end = clock();
-  double clusteringTime = (double) (end - start)/CLOCKS_PER_SEC;
-  outputFile << "Clustering\n";
-  for(auto entry : clusterPredictions){
-    vector<string> recommendations = getCoinRecommendations(u.at(entry.first), entry.second, coins, 5);
-    outputFile << entry.first << ": ";
-    for(auto coin : recommendations){
-      outputFile << coin + " ";
+    cout << "Calculating recommendations with clustering...\n";
+    start = clock();
+    unordered_map<int, point> clusterPredictionsA = getClusteringPredictions(conf, uNorm, uNorm, coins.size());
+    unordered_map<int, point> clusterPredictionsB = getClusteringPredictions(conf, uNorm, c, coins.size());
+    end = clock();
+    double clusteringTime = (double) (end - start)/CLOCKS_PER_SEC;
+    outputFile << "Clustering\n";
+    for(auto entry : u){
+      //Get recommended coins
+      vector<string> recommendationsA = getCoinRecommendations(entry.second, clusterPredictionsA.at(entry.first), coins, 5);
+      vector<string> recommendationsB = getCoinRecommendations(entry.second, clusterPredictionsB.at(entry.first), coins, 2);
+      //Print output
+      outputFile << entry.first << ": ";
+      for(auto coin : recommendationsA){
+        outputFile << coin + " ";
+      }
+      outputFile << "|| ";
+      for(auto coin : recommendationsB){
+        outputFile << coin + " ";
+      }
+      outputFile << "\n";
     }
-    outputFile << "\n";
+    outputFile << "Execution time: " << clusteringTime << "\n";
   }
-  outputFile << "Execution time: " << clusteringTime << "\n";
 
   outputFile.close();
   return 0;
