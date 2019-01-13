@@ -16,7 +16,7 @@
 
 using namespace std;
 
-string usageStr = "./cluster -i <input file> -c <clusters file> -o <output file>\n";
+string usageStr = "./cluster -i <input file> -c <clusters file> -o <output file> -m <mode>\n";
 
 int main(int argc, char* const *argv) {
   //Command line arguments
@@ -60,6 +60,11 @@ int main(int argc, char* const *argv) {
 
   //Check command line arguments
   if(tweetsFileName == NULL || clustersFileName == NULL || outputFileName == NULL){
+    cerr << "Usage: " << usageStr;
+    return 1;
+  }
+  if(!lshMode && !clusterMode){
+    cerr << "Error: No mode was selected\n";
     cerr << "Usage: " << usageStr;
     return 1;
   }
