@@ -86,28 +86,17 @@ int main(int argc, char* const *argv) {
   cout << "Created score vectors for " << u.size() << " users\n";
 
   //Normalise user score vectors
-  // cout << "Normalising user score vectors...\n";
-  // uNorm = normaliseScores(u);
-
-  // for(auto entry : u){
-  //   cout << "User id = " << entry.first << "\n";
-  //   entry.second.print();
-  // }
+  cout << "Normalising user score vectors...\n";
+  unordered_map<int, point> uNorm = normaliseScores(u);
 
   //Calculate score vectors c for each cluster
   cout << "Calculating cluster score vectors...\n";
   vector<point> c = getClustersScore(clusters, tweets, lexicon, coins, coinLexicon);
 
-  // for(int i = 0; i < c.size(); i++){
-  //   cout << "\nCluster #" << i+1 << ":\n";
-  //   c.at(i).print();
-  // }
-
-
   //Get LSH recommendations
   cout << "Calculating recommendations with LSH...\n";
   start = clock();
-  unordered_map<int, point> lshPredictions = getLSHPredictions(16, 9, u, coins.size());
+  unordered_map<int, point> lshPredictions = getLSHPredictions(16, 9, uNorm, coins.size());
   end = clock();
   double lshTime = (double) (end - start)/CLOCKS_PER_SEC;
   outputFile << "Cosine LSH\n";
@@ -131,7 +120,7 @@ int main(int argc, char* const *argv) {
 
   cout << "Calculating recommendations with clustering...\n";
   start = clock();
-  unordered_map<int, point> clusterPredictions = getClusteringPredictions(conf, u, coins.size());
+  unordered_map<int, point> clusterPredictions = getClusteringPredictions(conf, uNorm, coins.size());
   end = clock();
   double clusteringTime = (double) (end - start)/CLOCKS_PER_SEC;
   outputFile << "Clustering\n";
