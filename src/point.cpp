@@ -83,12 +83,20 @@ void point::printVals(ostream &stream){
   stream << ")";
 }
 
+double point::get(int i){
+  return vals[i];
+}
+
 int point::dim(){
   return vals.size();
 }
 
 string point::getName(){
   return name;
+}
+
+void point::rename(string newName){
+  name = newName;
 }
 
 double point::euclDist(point p){
@@ -168,6 +176,22 @@ point point::sum(point p){
   return point("", newVals);
 }
 
+point point::diff(point p){
+  vector<double> newVals;
+
+  vector<double>::iterator it1 = this->vals.begin();
+  vector<double>::iterator it2 = p.vals.begin();
+
+  for(int i = 0; i < this->vals.size(); i++){
+    newVals.push_back(*it1 - *it2);
+
+    it1++;
+    it2++;
+  }
+
+  return point("", newVals);
+}
+
 bool point::equal(point p){
   if(this->vals.size() != p.vals.size()){
     return false;
@@ -199,5 +223,37 @@ void point::add(point p){
 void point::div(float f){
   for(int i = 0; i < this->vals.size(); i++){
     vals[i] = vals[i] / f;
+  }
+}
+
+void point::mult(float f){
+  for(int i = 0; i < this->vals.size(); i++){
+    vals[i] = vals[i] * f;
+  }
+}
+
+int point::nonZeroVals(){
+  int count = 0;
+  for(int i = 0; i < this->vals.size(); i++){
+    if(vals[i] != 0){
+      count++;
+    }
+  }
+  return count;
+}
+
+double point::sumVals(){
+  double sum = 0;
+  for(int i = 0; i < this->vals.size(); i++){
+    sum += vals[i];
+  }
+  return sum;
+}
+
+void point::setZeroVals(double val){
+  for(int i = 0; i < this->vals.size(); i++){
+    if(vals[i] == 0){
+      vals[i] = val;
+    }
   }
 }

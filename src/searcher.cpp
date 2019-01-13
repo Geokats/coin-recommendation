@@ -75,7 +75,9 @@ unordered_set<point*> lsh::rnn(point q, double r){
       for(int k = 0; k < bucket->size(); k++){
         double dist = distance(q, *(bucket->at(k)), metric);
         if(dist < r){
-          rnns.insert(bucket->at(k));
+          if(rnns.find(bucket->at(k)) == rnns.end()){
+            rnns.insert(bucket->at(k));
+          }
         }
       }
     }
@@ -234,7 +236,9 @@ unordered_set<point*> hypercube::rnn(point q, double r){
     if(i < vertices[key]->size()){
       double dist = distance(q, *(vertices[key]->at(i)), metric);
       if(dist < r){
-        rnns.insert(vertices[key]->at(i));
+        if(rnns.find(vertices[key]->at(i)) == rnns.end()){
+          rnns.insert(vertices[key]->at(i));
+        }
       }
 
       i++;

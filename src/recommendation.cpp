@@ -11,6 +11,7 @@
 #include "util.hpp"
 #include "point.hpp"
 #include "recommender.hpp"
+#include "searcher.hpp"
 
 using namespace std;
 
@@ -69,53 +70,54 @@ int main(int argc, char* const *argv) {
   readTweetsFile(tweetsFileName, tweets);
 
   //Load clusters
+  cout << "Loading clusters from " << clustersFileName << "...\n";
   vector<vector<int>> clusters;
   readClustersFile(clustersFileName, clusters);
 
   //Open output file
   fstream outputFile(outputFileName, ios_base::out);
 
-  //Calculate u score vectors for each user
+  //Calculate score vectors u for each user
   cout << "Calculating user score vectors...\n";
-  unordered_map<int, point> u;
-  for(auto t : tweets){
-    point score = getCoinScore(t.second, lexicon, coins, coinLexicon);
+  unordered_map<int, point> u = getUsersScore(tweets, lexicon, coins, coinLexicon);
+  cout << "Created score vectors for " << u.size() << " users\n";
 
-    auto entry = u.find(t.second.userId);
-    if(entry == u.end()){
-      //If user vector hasn't been created yet, add a new entry
-      u.emplace(t.second.userId, score);
-    }
-    else{
-      //If user already has a vector, add score to the vector
-      entry->second.add(score);
-    }
-  }
+  //Normalise user score vectors
+  // cout << "Normalising user score vectors...\n";
+  // uNorm = normaliseScores(u);
 
   // for(auto entry : u){
   //   cout << "User id = " << entry.first << "\n";
   //   entry.second.print();
   // }
 
-  //Calculate c score vectors for each cluster
+  //Calculate score vectors c for each cluster
   cout << "Calculating cluster score vectors...\n";
-  vector<point> c;
-  for(auto cluster : clusters){
-    //Create vector for cluster
-    point score("coin_scores", coins.size());
+  vector<point> c = getClustersScore(clusters, tweets, lexicon, coins, coinLexicon);
 
-    for(auto tweetId : cluster){
-      //For each tweet in cluster add score vector to cluster vector
-      point tweetScore = getCoinScore(tweets[tweetId], lexicon, coins, coinLexicon);
-      score.add(tweetScore);
-    }
-    c.emplace_back(score);
+  // for(int i = 0; i < c.size(); i++){
+  //   cout << "\nCluster #" << i+1 << ":\n";
+  //   c.at(i).print();
+  // }
+
+
+  //Get LSH recommendations
+  cout << "Calculating recommendations with LSH...\n";
+  unordered_map<int, point> predictions = getLSHPredictions(16, 9, u, coins.size());
+  for(auto entry : predictions){
+    vector<string> recommendations = getCoinRecommendations(u.at(entry.first), entry.second, coins, 5);
   }
 
-  for(int i = 0; i < c.size(); i++){
-    cout << "\nCluster #" << i+1 << ":\n";
-    c.at(i).print();
-  }
+  //Get clustering recommendations
+  configuration conf;
+  conf.setClusterCount(10);
+  conf.setInitialise("random");
+  conf.setAssign("lloyds");
+  conf.setUpdate("kmeans");
+  conf.setMetric("euclidean");
+
+  cout << "Calculating recommendations with clustering...\n";
+  unordered_map<int, point> predictions = getClusteringPredictions(conf, u, coins.size());
 
   outputFile.close();
   return 0;
