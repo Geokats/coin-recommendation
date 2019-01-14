@@ -19,7 +19,7 @@
 
 using namespace std;
 
-string usageStr = "./cluster -i <input file> -c <configuration file> -o <output file>\n";
+string usageStr = "./cluster -i <input file> -c <configuration file> -o <output file> [-v]\n";
 
 int main(int argc, char* const *argv) {
   //Command line arguments
