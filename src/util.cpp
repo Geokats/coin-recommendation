@@ -387,8 +387,10 @@ void readClustersFile(string clustersFileName, vector<vector<int>> &clusters){
     //Extract ids
     while(!iss.eof()){
       getline(iss, id, ' ');
-      id.pop_back();
-      curCluster.push_back(stoi(id.c_str()));
+      if(id.size() > 1){
+        id.pop_back();
+        curCluster.push_back(stoi(id.c_str()));
+      }
     }
 
     clusters.emplace_back(curCluster);
