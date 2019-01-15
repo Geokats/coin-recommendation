@@ -115,20 +115,21 @@ int main(int argc, char* const *argv) {
   unordered_map<int, point> u = getUsersScore(tweets, lexicon, coins, coinLexicon);
   cout << "Created score vectors for " << u.size() << " users\n";
 
-  //Normalise user score vectors
-  cout << "Normalising user score vectors...\n";
-  unordered_map<int, point> uNorm = normaliseScores(u);
-
   //Calculate score vectors c for each cluster
   cout << "Calculating cluster score vectors...\n";
   vector<point> c = getClustersScore(clusters, tweets, lexicon, coins, coinLexicon);
+
+  //Normalise score vectors
+  cout << "Normalising score vectors...\n";
+  unordered_map<int, point> uNorm = normaliseScores(u);
+  vector<point> cNorm = normaliseScores(c);
 
   //Get LSH recommendations
   if(lshMode && !validationMode){
     cout << "Calculating recommendations with LSH...\n";
     start = clock();
     unordered_map<int, point> lshPredictionsA = getLSHPredictions(lshK, lshL, uNorm, uNorm, coins.size());
-    unordered_map<int, point> lshPredictionsB = getLSHPredictions(lshK, lshL, uNorm, c, coins.size());
+    unordered_map<int, point> lshPredictionsB = getLSHPredictions(lshK, lshL, uNorm, cNorm, coins.size());
     end = clock();
     double lshTime = (double) (end - start)/CLOCKS_PER_SEC;
     outputFile << "Cosine LSH\n";
@@ -155,7 +156,7 @@ int main(int argc, char* const *argv) {
     cout << "Calculating recommendations with clustering...\n";
     start = clock();
     unordered_map<int, point> clusterPredictionsA = getClusteringPredictions(conf, uNorm, uNorm, coins.size());
-    unordered_map<int, point> clusterPredictionsB = getClusteringPredictions(conf, uNorm, c, coins.size());
+    unordered_map<int, point> clusterPredictionsB = getClusteringPredictions(conf, uNorm, cNorm, coins.size());
     end = clock();
     double clusteringTime = (double) (end - start)/CLOCKS_PER_SEC;
     outputFile << "Clustering\n";
@@ -188,12 +189,17 @@ int main(int argc, char* const *argv) {
     }
     random_shuffle(userIds.begin(), userIds.end());
 
-    double lshMAE = 0;
-    int lshJ = 0;
-    double clusterMAE = 0;
-    int clusterJ = 0;
+    double lshMAE_A = 0;
+    int lshJ_A = 0;
+    double lshMAE_B = 0;
+    int lshJ_B = 0;
+    double clusterMAE_A = 0;
+    int clusterJ_A = 0;
+    double clusterMAE_B = 0;
+    int clusterJ_B = 0;
 
     for(int i = 0; i < foldCount; i++){
+      cout << "Calculating MAE for fold " << i+1 << "/" << foldCount << " of the dataset...\n";
       unordered_map<int, point> testSet;
       unordered_map<int, point> trainSet;
       //Seperate fold in train and test sets
@@ -236,42 +242,38 @@ int main(int argc, char* const *argv) {
         testSetErased.emplace(entry.first, ratings);
       }
 
+      //Normalise scores
+      unordered_map<int,point> testSetErasedNorm = normaliseScores(testSetErased);
+      unordered_map<int,point> trainSetNorm = normaliseScores(trainSet);
+
       //Get predictions and calculate errors
       if(lshMode){
-        unordered_map<int, point> lshPredictions = getLSHPredictions(lshK, lshL, testSetErased, trainSet, coins.size());
-        for(auto entry : lshPredictions){
-          point expected = testSet.at(entry.first);
-          for(int j = 0; j < expected.dim(); j++){
-            if(expected.get(j) != 0){
-              lshMAE += abs(expected.get(j) - entry.second.get(j));
-              lshJ++;
-            }
-          }
-        }
+        unordered_map<int, point> lshPredictionsA = getLSHPredictions(lshK, lshL, testSetErasedNorm, trainSetNorm, coins.size());
+        calculateCumulativeMAE(lshPredictionsA, testSet, lshMAE_A, lshJ_A);
+        unordered_map<int, point> lshPredictionsB = getLSHPredictions(lshK, lshL, testSetErasedNorm, cNorm, coins.size());
+        calculateCumulativeMAE(lshPredictionsB, testSet, lshMAE_B, lshJ_B);
       }
 
       if(clusterMode){
-        unordered_map<int, point> clusterPredictions = getClusteringPredictions(conf, testSetErased, trainSet, coins.size());
-        for(auto entry : clusterPredictions){
-          point expected = testSet.at(entry.first);
-          for(int j = 0; j < expected.dim(); j++){
-            if(expected.get(j) != 0){
-              clusterMAE += abs(expected.get(j) - entry.second.get(j));
-              clusterJ++;
-            }
-          }
-        }
+        unordered_map<int, point> clusterPredictionsA = getClusteringPredictions(conf, testSetErasedNorm, trainSetNorm, coins.size());
+        calculateCumulativeMAE(clusterPredictionsA, testSet, clusterMAE_A, clusterJ_A);
+        unordered_map<int, point> clusterPredictionsB = getClusteringPredictions(conf, testSetErasedNorm, cNorm, coins.size());
+        calculateCumulativeMAE(clusterPredictionsB, testSet, clusterMAE_B, clusterJ_B);
       }
     }
 
     //Calculate and print results
     if(lshMode){
-      lshMAE = lshMAE / lshJ;
-      outputFile << "LSH Recommendation MAE: " << lshMAE << "\n";
+      lshMAE_A = lshMAE_A / lshJ_A;
+      outputFile << "LSH Recommendation MAE (A): " << lshMAE_A << "\n";
+      lshMAE_B = lshMAE_B / lshJ_B;
+      outputFile << "LSH Recommendation MAE (B): " << lshMAE_B << "\n";
     }
     if(clusterMode){
-      clusterMAE = clusterMAE / clusterJ;
-      outputFile << "Clustering Recommendation MAE: " << clusterMAE << "\n";
+      clusterMAE_A = clusterMAE_A / clusterJ_A;
+      outputFile << "Clustering Recommendation MAE (A): " << clusterMAE_A << "\n";
+      clusterMAE_B = clusterMAE_B / clusterJ_B;
+      outputFile << "Clustering Recommendation MAE (B): " << clusterMAE_B << "\n";
     }
   }
 

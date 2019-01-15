@@ -82,6 +82,8 @@ unordered_map<int, point> getUsersScore(unordered_map<int, tweet> tweets, unorde
 }
 
 vector<point> getClustersScore(vector<vector<int>> clusters, unordered_map<int, tweet> tweets, unordered_map<string, float> lexicon, vector<string> coins, unordered_map<string, int> coinLexicon){
+  point zeros("zeros", coins.size());
+
   vector<point> c;
   for(auto cluster : clusters){
     //Create vector for cluster
@@ -91,6 +93,11 @@ vector<point> getClustersScore(vector<vector<int>> clusters, unordered_map<int, 
       //For each tweet in cluster add score vector to cluster vector
       point tweetScore = getCoinScore(tweets[tweetId], lexicon, coins, coinLexicon);
       score.add(tweetScore);
+    }
+
+    if(score.equal(zeros)){
+      //If tweet doesn't give any information, don't add it
+      continue;
     }
     c.emplace_back(score);
   }
@@ -106,7 +113,7 @@ point getAverageScore(unordered_map<int, point> u, int coinCount){
   return average;
 }
 
-unordered_map<int,point> normaliseScores(unordered_map<int,point> &scores){
+unordered_map<int,point> normaliseScores(unordered_map<int,point> scores){
   unordered_map<int,point> newScores;
   for(auto entry : scores){
     double mean = entry.second.sumVals() / (double) entry.second.nonZeroVals();
@@ -118,30 +125,16 @@ unordered_map<int,point> normaliseScores(unordered_map<int,point> &scores){
   return newScores;
 }
 
-point getScorePrediction(point user, unordered_set<point*> neighbors){
-  point sum("sum", user.dim());
-  float simSum = 0;
+vector<point> normaliseScores(vector<point> scores){
+  vector<point> newScores;
+  for(auto entry : scores){
+    double mean = entry.sumVals() / (double) entry.nonZeroVals();
+    entry.setZeroVals(mean);
 
-  for(auto n : neighbors){
-    if(n->equal(user)){
-      //If the user is in the neighbors, then skip him
-      continue;
-    }
-
-    float sim = user.cosDist(*n);
-    simSum += abs(sim);
-
-    point temp(user);
-    temp.sub(*n);
-    temp.mult(sim);
-    sum.add(temp);
+    newScores.emplace_back(entry);
   }
-  if(simSum != 0){
-    sum.div(simSum);
-  }
-  point prediction = user.sum(sum);
 
-  return prediction;
+  return newScores;
 }
 
 point getScorePrediction(point user, vector<point*> neighbors){
@@ -168,6 +161,16 @@ point getScorePrediction(point user, vector<point*> neighbors){
   point prediction = user.sum(sum);
 
   return prediction;
+}
+
+point getScorePrediction(point user, unordered_set<point*> neighbors){
+  vector<point*> newNeighbors;
+
+  for(auto n : neighbors){
+    newNeighbors.emplace_back(n);
+  }
+
+  return getScorePrediction(user, newNeighbors);
 }
 
 vector<string> getCoinRecommendations(point userNotNormalized, point prediction, vector<string> coins, int k){
@@ -242,6 +245,10 @@ unordered_map<int, point> getClusteringPredictions(configuration conf, unordered
     double minDist = (*centroids).at(0).euclDist(entry.second);
 
     for(int i = 1; i < conf.getClusterCount(); i++){
+      if(clusters[i].size() == 0){
+        //If cluster is empty, then skip it
+        continue;
+      }
       float dist = (*centroids).at(i).euclDist(entry.second);
       if(dist < minDist){
         minDist = dist;
@@ -264,4 +271,16 @@ unordered_map<int, point> getClusteringPredictions(configuration conf, unordered
     scores.emplace_back(entry.second);
   }
   return getClusteringPredictions(conf, users, scores, coinsCount);
+}
+
+void calculateCumulativeMAE(unordered_map<int, point> predictions, unordered_map<int, point> expectations, double &MAE, int &J){
+  for(auto entry : predictions){
+    point expected = expectations.at(entry.first);
+    for(int j = 0; j < expected.dim(); j++){
+      if(expected.get(j) != 0){
+        MAE += abs(expected.get(j) - entry.second.get(j));
+        J++;
+      }
+    }
+  }
 }

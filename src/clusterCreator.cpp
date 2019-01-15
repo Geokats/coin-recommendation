@@ -85,28 +85,28 @@ clusterCreator::~clusterCreator(){
 }
 
 void clusterCreator::makeClusters(){
-  cout << "Initialising clusters...\n";
+  // cout << "Initialising clusters...\n";
   centroids = (this->*initialise)();
   clusters = (this->*assign)(centroids);
 
-  cout << "Starting clustering...\n";
+  // cout << "Starting clustering...\n";
   for(int i = 0 ; i < conf.getMaxIterations(); i++){
     //Get new centroids
     vector<point> newCentroids = (this->*update)();
     //Check how many centroids have changed
     int unchanged = 0;
 
-    cout << i+1 << ")\t[";
+    // cout << i+1 << ")\t[";
     for(int i = 0; i < k; i++){
       if(centroids[i].equal(newCentroids[i])){
-        cout << "U";
+        // cout << "U";
         unchanged++;
       }
       else{
-        cout << "C";
+        // cout << "C";
       }
     }
-    cout << "]\n";
+    // cout << "]\n";
 
     //Delete old clusters
     delete[] clusters;
@@ -115,7 +115,7 @@ void clusterCreator::makeClusters(){
     clusters = (this->*assign)(centroids);
 
     if(unchanged == k){
-      cout << "At iteration #" << i+1 << " all centroids were unchanged\n";
+      // cout << "At iteration #" << i+1 << " all centroids were unchanged\n";
       break;
     }
   }

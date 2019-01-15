@@ -16,7 +16,8 @@ std::unordered_map<int, point> getUsersScore(std::unordered_map<int, tweet> twee
 
 std::vector<point> getClustersScore(std::vector<std::vector<int>> clusters, std::unordered_map<int, tweet> tweets, std::unordered_map<std::string, float> lexicon, std::vector<std::string> coins, std::unordered_map<std::string, int> coinLexicon);
 
-std::unordered_map<int,point> normaliseScores(std::unordered_map<int,point> &scores);
+std::unordered_map<int,point> normaliseScores(std::unordered_map<int,point> scores);
+std::vector<point> normaliseScores(std::vector<point> scores);
 
 std::unordered_map<int, point> getLSHPredictions(int k, int L, std::unordered_map<int, point> users, std::vector<point> data, int coinsCount);
 std::unordered_map<int, point> getLSHPredictions(int k, int L, std::unordered_map<int, point> users, std::unordered_map<int, point> data, int coinsCount);
@@ -25,5 +26,7 @@ std::unordered_map<int, point> getClusteringPredictions(configuration conf, std:
 std::unordered_map<int, point> getClusteringPredictions(configuration conf, std::unordered_map<int, point> users, std::unordered_map<int, point> data, int coinsCount);
 
 std::vector<std::string> getCoinRecommendations(point userNotNormalized, point prediction, std::vector<std::string> coins, int k);
+
+void calculateCumulativeMAE(std::unordered_map<int, point> predictions, std::unordered_map<int, point> expectations, double &MAE, int &J);
 
 #endif
