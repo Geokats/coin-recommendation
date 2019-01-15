@@ -768,6 +768,23 @@ validation. Για τη μέθοδο clustering δημιουργούνται 10 
 	\end{tabular}
 \end{table}
 
+\subsubsection{Επιλογή Πλήθος Clusters}
+Συγκρίνοντας το silhouette score των clusters, επιλέχτηκε πειραματικά $k=10$.
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[baseline=(current axis.outer east)]
+		\begin{axis}[clip = false, axis line style = {latex-latex},
+			axis lines = left,	xlabel = $k$,	ylabel = $Silhouette$,
+			width=0.5\textwidth, legend pos=outer north east, xmin = 0, xtick = data]
+			\addplot table [x=k, y=silhouette, col sep=comma,color=red] {recommendation/silhouetteA.csv};
+			\addlegendentry{Μέθοδος Α}
+			\addplot table [x=k, y=silhouette, col sep=comma,color=blue] {recommendation/silhouetteB.csv};
+			\addlegendentry{Μέθοδος Β}
+		\end{axis}
+	\end{tikzpicture}
+\end{figure}
+
+
 \subsection{Clustering}
 \begin{table}[H]
 	\centering

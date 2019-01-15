@@ -415,3 +415,12 @@ vector<float> clusterCreator::silhouette(){
   }
   return scores;
 }
+
+float clusterCreator::avgSilhouette(){
+  vector<float> scores = this->silhouette();
+  float score = 0;
+  for(int i = 0; i < k; i++){
+    score += scores[i];
+  }
+  return score/(float) k;
+}

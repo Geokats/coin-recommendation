@@ -39,6 +39,7 @@ class clusterCreator{
     float pointSilhouette(point p, int clusterIndex);
     float clusterSilhouette(int clusterIndex);
     std::vector<float> silhouette();
+    float avgSilhouette();
 };
 
 #define CLUSTER_CREATOR

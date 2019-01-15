@@ -232,6 +232,22 @@ unordered_map<int, point> getLSHPredictions(int k, int L, unordered_map<int, poi
 unordered_map<int, point> getClusteringPredictions(configuration conf, unordered_map<int, point> users, vector<point> data, int coinsCount){
   unordered_map<int, point> predictions;
 
+  //Find best number of clusters
+  // int k_arr[] = {10, 20, 50, 100, 150, 200, 300, 400};
+  // int bestK = -1;
+  // float bestSilhouette;
+  // for(auto k : k_arr){
+  //   conf.setClusterCount(k);
+  //   clusterCreator cl = clusterCreator(&data, conf);
+  //   cl.makeClusters();
+  //   float silhouette = cl.avgSilhouette();
+  //   cout << "k = " << k << " : silhouette = " << silhouette << "\n";
+  //   if(bestK == -1 || silhouette > bestSilhouette){
+  //     bestK = k;
+  //     bestSilhouette = silhouette;
+  //   }
+  // }
+
   //Initialise clustering
   clusterCreator cl = clusterCreator(&data, conf);
   cl.makeClusters();
