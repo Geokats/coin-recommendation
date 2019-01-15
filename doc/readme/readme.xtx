@@ -150,6 +150,10 @@
 	\begin{itemize}
 		\item Για τη δημιουργία μόνο του εκτελέσιμου cluster
 	\end{itemize}
+	\item \verb|make recommendation|
+	\begin{itemize}
+		\item Για τη δημιουργία μόνο του εκτελέσιμου recommendation
+	\end{itemize}
 \end{itemize}
 
 \subsection{Εκτέλεση}
@@ -178,8 +182,28 @@
 
 \subsubsection{Cluster}
 \begin{lstlisting}[style=cmd]
-	./cluster -i <input file> -c <configuration file> -o <output file>
+	./cluster -i <input file> -c <configuration file> -o <output file> [-v]
 \end{lstlisting}
+
+\subsubsection{Παράμετροι Cluster}
+\begin{itemize}
+	\item Με την προεραιτική σημαία v (verbose) το πρόγραμμα εκτυπώνει και τα
+	περιεχόμενα κάθε cluster
+\end{itemize}
+
+\subsubsection{Recommendation}
+\begin{lstlisting}[style=cmd]
+	./recommendation -i <input file> -c <clusters file> -o <output file> -m <mode>
+\end{lstlisting}
+
+\subsubsection{Παράμετροι Recommendation}
+\begin{itemize}
+	\item Η παράμετρος $m$ ορίζει ποιοί αλγόριθμοι recommendation θα εκτελεστούν
+	("lsh"/"cluster"). Επίσης μπορεί να δωθεί ως mode το "validation", τότε αντί
+	για την κανονική λειτουργία του προγράμματος γίνεται validation και
+	υπολογισμός του mean absolute error. Προφανώς μπορούν να δωθούν παραπάνω από ένα
+	modes.
+\end{itemize}
 
 \subsection{Input File}
 Τα αρχεία εισόδου όλων των προγραμμάτων του project πρέπει να έχουν την ακόλουθη
@@ -376,6 +400,10 @@ x3,12,47,14,25,2,3,4,7,14,122,90,7,0,0,6,14,0,24,...
 Περιέχει την συνάρτηση main που εκτελεί το cluster creator πάνω σε δοσμένο
 dataset και εκτυπώνει αποτελέσματα και στατιστικά.
 
+\subsubsection{Αρχείο recommendation.cpp}
+Περιέχει την συνάρτηση main που φορτώνει τα απαραίτητα δεδομένα και εκτελεί τους
+αλγορίθμους recommendation για cryptocoins.
+
 \subsubsection{Αρχείο searcher.cpp/.hpp}
 Περιέχουν τη virtual κλάση searcher και την υλοποίηση των υποκλάσεών της, lsh
 και hypercube.
@@ -383,6 +411,9 @@ dataset και εκτυπώνει αποτελέσματα και στατιστ
 \subsubsection{Αρχείο clusterCreator.cpp/.hpp}
 Περιέχουν την υλοποιήση των αλγορίθμων clustering και του αλγορίθμου αξιολόγησης
 silhouette.
+
+\subsubsection{Αρχείο recommender.cpp/.hpp}
+Περιέχουν την υλοποιήση των αλγορίθμων recommendation για cryptocoins.
 
 \subsubsection{Αρχείο hash\_table.cpp/.hpp}
 Περιέχει την υλοποίηση των πινάκων κατακερματισμού που χρησιμοποιεί
@@ -400,10 +431,10 @@ silhouette.
 Περιέχει γενικές συναρτήσεις που χρησιμοποιούνται και από τις δύο
 μεθόδους
 
-\section{Approximate Nearest Neighboor}
-\subsection{Latent Semantic Hashing (LSH)}
-
-\subsection{Υπερκύβος}
+% \section{Approximate Nearest Neighboor}
+% \subsection{Latent Semantic Hashing (LSH)}
+%
+% \subsection{Υπερκύβος}
 
 
 \section{Σύγκριση Μεθόδων LSH \& Hypercube}
@@ -718,5 +749,36 @@ $k$.
 		\end{axis}
 	\end{tikzpicture}
 \end{figure}
+
+\section{Cryptocoin Recommendations}
+Στη συνέχεια παραθέτουμε το Mean Absolute Error όπως υπολογίστηκε με 10-fold cross
+validation. Για τη μέθοδο clustering δημιουργούνται 10 clusters. Για τη μέθοδο
+Β χρησιμοποιούμε αρχείο εισόδου με 400 clusters (εικονικούς χρήστες).
+
+\subsection{Cosine LSH}
+\begin{table}[H]
+	\centering
+	\begin{tabular}{c || c}
+		Πληροφορίες Εκτέλεσης      & MAE    \\
+		\hline \hline
+		Μέθοδος Α (normalised)     & 0.2518 \\
+		Μέθοδος Α (not normalised) & 0.4191 \\
+		Μέθοδος B (normalised)     & 0.6532 \\
+		Μέθοδος Β (not normalised) & 0.8249 \\
+	\end{tabular}
+\end{table}
+
+\subsection{Clustering}
+\begin{table}[H]
+	\centering
+	\begin{tabular}{c || c}
+		Πληροφορίες Εκτέλεσης      & MAE    \\
+		\hline \hline
+		Μέθοδος Α (normalised)     & 0.1344 \\
+		Μέθοδος Α (not normalised) & 0.3719 \\
+		Μέθοδος B (normalised)     & 0.2220 \\
+		Μέθοδος B (not normalised) & 0.3970 \\
+	\end{tabular}
+\end{table}
 
 \end{document}
