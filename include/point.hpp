@@ -20,6 +20,7 @@ public:
 
   int dim();
   double get(int i);
+  void set(int i, double val);
   std::string getName();
   void rename(std::string newName);
 

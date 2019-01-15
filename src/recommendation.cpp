@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 #include <random>
 #include <chrono>
 #include <time.h>
@@ -16,7 +17,7 @@
 
 using namespace std;
 
-string usageStr = "./cluster -i <input file> -c <clusters file> -o <output file> -m <mode>\n";
+string usageStr = "./recommendation -i <input file> -c <clusters file> -o <output file> -m <mode>\n";
 
 int main(int argc, char* const *argv) {
   //Command line arguments
@@ -25,13 +26,23 @@ int main(int argc, char* const *argv) {
   char *clustersFileName = NULL;
   bool lshMode = false;
   bool clusterMode = false;
+  bool validationMode = false;
   //Other arguments
   string lexiconFileName = "data/vader_lexicon.csv";
   string coinsFileName = "data/coins_queries.csv";
+  //LSH parameters
+  int lshK = 16;
+  int lshL = 4;
+  //Clustering configuration
+  configuration conf;
+  conf.setClusterCount(10);
+  conf.setInitialise("random");
+  conf.setAssign("lloyds");
+  conf.setUpdate("kmeans");
+  conf.setMetric("euclidean");
 
 
   char ch;
-
   //Read command line arguments
   while((ch = getopt(argc, argv, "i:o:c:m:")) != -1){
     switch(ch){
@@ -50,6 +61,9 @@ int main(int argc, char* const *argv) {
         }
         else if(strcmp(optarg, "cluster") == 0){
           clusterMode = true;
+        }
+        else if(strcmp(optarg, "validation") == 0){
+          validationMode = true;
         }
         break;
       default:
@@ -110,11 +124,11 @@ int main(int argc, char* const *argv) {
   vector<point> c = getClustersScore(clusters, tweets, lexicon, coins, coinLexicon);
 
   //Get LSH recommendations
-  if(lshMode){
+  if(lshMode && !validationMode){
     cout << "Calculating recommendations with LSH...\n";
     start = clock();
-    unordered_map<int, point> lshPredictionsA = getLSHPredictions(16, 4, uNorm, uNorm, coins.size());
-    unordered_map<int, point> lshPredictionsB = getLSHPredictions(16, 4, uNorm, c, coins.size());
+    unordered_map<int, point> lshPredictionsA = getLSHPredictions(lshK, lshL, uNorm, uNorm, coins.size());
+    unordered_map<int, point> lshPredictionsB = getLSHPredictions(lshK, lshL, uNorm, c, coins.size());
     end = clock();
     double lshTime = (double) (end - start)/CLOCKS_PER_SEC;
     outputFile << "Cosine LSH\n";
@@ -136,15 +150,8 @@ int main(int argc, char* const *argv) {
     outputFile << "Execution time: " << lshTime << "\n\n";
   }
 
-  if(clusterMode){
-    //Get clustering recommendations
-    configuration conf;
-    conf.setClusterCount(10);
-    conf.setInitialise("random");
-    conf.setAssign("lloyds");
-    conf.setUpdate("kmeans");
-    conf.setMetric("euclidean");
-
+  //Get clustering recommendations
+  if(clusterMode && !validationMode){
     cout << "Calculating recommendations with clustering...\n";
     start = clock();
     unordered_map<int, point> clusterPredictionsA = getClusteringPredictions(conf, uNorm, uNorm, coins.size());
@@ -168,6 +175,104 @@ int main(int argc, char* const *argv) {
       outputFile << "\n";
     }
     outputFile << "Execution time: " << clusteringTime << "\n";
+  }
+
+  if(validationMode){
+    cout << "Calculatine Mean Absolute Error...\n";
+
+    int foldCount = 10;
+    int foldSize = u.size() / foldCount;
+    vector<int> userIds;
+    for(auto entry : u){
+      userIds.push_back(entry.first);
+    }
+    random_shuffle(userIds.begin(), userIds.end());
+
+    double lshMAE = 0;
+    int lshJ = 0;
+    double clusterMAE = 0;
+    int clusterJ = 0;
+
+    for(int i = 0; i < foldCount; i++){
+      unordered_map<int, point> testSet;
+      unordered_map<int, point> trainSet;
+      //Seperate fold in train and test sets
+      for(int j = 0; j < foldCount; j++){
+        vector<int>::iterator usersStart = userIds.begin() + j*foldSize;
+        vector<int>::iterator usersEnd = j+1 == foldCount ? userIds.end() : usersStart + foldSize;
+        if(i == j){
+          //If the current fold is the test set
+          for(auto it = usersStart; it != usersEnd; it++){
+            testSet.emplace(*it, u.at(*it));
+          }
+        }
+        else{
+          for(auto it = usersStart; it != usersEnd; it++){
+            trainSet.emplace(*it, u.at(*it));
+          }
+        }
+      }
+      //Delete some known values from test set vectors
+      unordered_map<int, point> testSetErased;
+      for(auto entry : testSet){
+        int ratedItems = entry.second.nonZeroVals();
+        if(ratedItems < 2){
+          continue;
+        }
+
+        point ratings = entry.second;
+        int erasedValues = 0;
+        for(int j = 0; j < ratings.dim() && erasedValues; j++){
+          if(ratings.get(j) != 0){
+            if(erasedValues < ratedItems/2){
+              ratings.set(j, 0);
+            }
+            else{
+              entry.second.set(j, 0);
+            }
+            erasedValues++;
+          }
+        }
+        testSetErased.emplace(entry.first, ratings);
+      }
+
+      //Get predictions and calculate errors
+      if(lshMode){
+        unordered_map<int, point> lshPredictions = getLSHPredictions(lshK, lshL, testSetErased, trainSet, coins.size());
+        for(auto entry : lshPredictions){
+          point expected = testSet.at(entry.first);
+          for(int j = 0; j < expected.dim(); j++){
+            if(expected.get(j) != 0){
+              lshMAE += abs(expected.get(j) - entry.second.get(j));
+              lshJ++;
+            }
+          }
+        }
+      }
+
+      if(clusterMode){
+        unordered_map<int, point> clusterPredictions = getClusteringPredictions(conf, testSetErased, trainSet, coins.size());
+        for(auto entry : clusterPredictions){
+          point expected = testSet.at(entry.first);
+          for(int j = 0; j < expected.dim(); j++){
+            if(expected.get(j) != 0){
+              clusterMAE += abs(expected.get(j) - entry.second.get(j));
+              clusterJ++;
+            }
+          }
+        }
+      }
+    }
+
+    //Calculate and print results
+    if(lshMode){
+      lshMAE = lshMAE / lshJ;
+      outputFile << "LSH Recommendation MAE: " << lshMAE << "\n";
+    }
+    if(clusterMode){
+      clusterMAE = clusterMAE / clusterJ;
+      outputFile << "Clustering Recommendation MAE: " << clusterMAE << "\n";
+    }
   }
 
   outputFile.close();

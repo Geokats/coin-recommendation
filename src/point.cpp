@@ -87,6 +87,10 @@ double point::get(int i){
   return vals[i];
 }
 
+void point::set(int i, double val){
+  vals[i] = val;
+}
+
 int point::dim(){
   return vals.size();
 }

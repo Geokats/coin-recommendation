@@ -136,7 +136,9 @@ point getScorePrediction(point user, unordered_set<point*> neighbors){
     temp.mult(sim);
     sum.add(temp);
   }
-  sum.div(simSum);
+  if(simSum != 0){
+    sum.div(simSum);
+  }
   point prediction = user.sum(sum);
 
   return prediction;
@@ -160,7 +162,9 @@ point getScorePrediction(point user, vector<point*> neighbors){
     temp.mult(sim);
     sum.add(temp);
   }
-  sum.div(simSum);
+  if(simSum != 0){
+    sum.div(simSum);
+  }
   point prediction = user.sum(sum);
 
   return prediction;
@@ -203,7 +207,7 @@ unordered_map<int, point> getLSHPredictions(int k, int L, unordered_map<int, poi
       tries++;
       neighbors = srch.rnn(entry.second, radius);
       radius *= 2;
-    }while(neighbors.size() < 50 && tries < 50);
+    }while(neighbors.size() < 20 && tries < 50);
 
     //Make prediction based on neighbors
     point prediction = getScorePrediction(entry.second, neighbors);
