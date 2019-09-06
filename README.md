@@ -1,5 +1,5 @@
 # Cryptocoin Hashing, Clustering & Recommendation
-This repository contains the code I developed for a project for a university class. It is divided in three parts, each parting building on the previous parts and expanding them.
+This repository contains the code I developed for a project for a university class. It is divided in three parts, each part building on the previous parts and expanding them.
 
 First I developed two methods for probabilistic hashing on vectors/points.
 Following that I implemented multiple clustering methods that use the before-mentioned hashing methods.
